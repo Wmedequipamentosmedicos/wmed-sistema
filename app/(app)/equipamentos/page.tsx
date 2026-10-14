@@ -45,7 +45,10 @@ export default async function EquipamentosPage({
     <>
       <div className="topo">
         <h1>Equipamentos</h1>
-        <Link className="btn" href="/equipamentos/novo">+ Adicionar</Link>
+        <div className="acoes-topo">
+          <Link className="btn sec" href="/equipamentos/importar">Importar planilha</Link>
+          <Link className="btn" href="/equipamentos/novo">+ Adicionar</Link>
+        </div>
       </div>
 
       <Aviso codigo={sp.ok ?? sp.erro} />

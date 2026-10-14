@@ -4,9 +4,9 @@ Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 
 - **Login** com e-mail e senha (somente quem for cadastrado entra).
 - **Usuários** (somente administrador): criar usuário, escolher o perfil, desativar e reativar.
-- **Empresas e clientes**: lista com busca e paginação, cadastro com abas (Endereço, Contato, Observações), editar e excluir.
+- **Empresas e clientes**: lista com busca e paginação, cadastro com abas (Endereço, Contato, Observações), importação em lote de planilhas Excel (.xlsx), editar e excluir.
 - **Produtos**: cadastro, busca, importação em lote de planilhas Excel (.xlsx), código interno sequencial e fotos privadas no Supabase Storage.
-- **Equipamentos**: lista com busca e paginação, cadastro com todos os campos do Archimedes, abas (Informações adicionais, extras, contrato e observações), editar e excluir.
+- **Equipamentos**: lista com busca e paginação, cadastro com todos os campos do Archimedes, importação em lote de planilhas Excel (.xlsx), abas (Informações adicionais, extras, contrato e observações), editar e excluir.
 - **Orçamentos**: fluxo completo com solicitante, itens, condições, gravação no Supabase, geração de PDF com logo e dados da empresa e exclusão por administradores.
 
 Ainda **não** tem: ordens de serviço, planos de manutenção, certificados, financeiro e documentos. Entram nas próximas etapas.
@@ -69,7 +69,7 @@ Na Vercel, no projeto: **Settings** > **Domains** > adicione `sistema.wmedequipa
 - O botão **+** ao lado de **Proprietário** abre o cadastro de empresa em outra aba; depois, recarregue a página do equipamento.
 - As listas de proprietário e de empresa superior mostram até 1.000 empresas.
 - A busca da lista de equipamentos procura em tipo, proprietário, fabricante, modelo, identificação, patrimônio, número de série e quadro de trabalho.
-- Não há importação dos dados do Archimedes ainda (797 equipamentos e 146 empresas): será uma etapa própria.
+- Para importar dados do Archimedes, importe primeiro as empresas e depois os equipamentos; os nomes das empresas proprietárias devem corresponder aos cadastros. Cada linha importada cria um novo registro.
 - Redefinir a senha de um usuário, por ora, é feito no painel do Supabase (**Authentication** > **Users**).
 
 ## Segurança

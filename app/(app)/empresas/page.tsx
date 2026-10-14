@@ -37,7 +37,10 @@ export default async function EmpresasPage({
     <>
       <div className="topo">
         <h1>Empresas e clientes</h1>
-        <Link className="btn" href="/empresas/novo">+ Adicionar</Link>
+        <div className="acoes-topo">
+          <Link className="btn sec" href="/empresas/importar">Importar planilha</Link>
+          <Link className="btn" href="/empresas/novo">+ Adicionar</Link>
+        </div>
       </div>
 
       <Aviso codigo={sp.ok ?? sp.erro} />
