@@ -1,9 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { hasSupabaseAnonConfig } from "@/lib/supabase/config";
 
 // Renova a sessão a cada requisição e leva quem não está logado para /login.
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+
+  if (!hasSupabaseAnonConfig()) {
+    return response;
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

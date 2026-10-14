@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasSupabaseAnonConfig } from "@/lib/supabase/config";
 
 // Retorna o usuário logado e seu perfil. Sem login, leva para /login.
 export async function getPerfil() {
+  if (!hasSupabaseAnonConfig()) {
+    redirect("/login?erro=config");
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
