@@ -35,4 +35,9 @@ export const MENSAGENS: Record<string, { texto: string; tipo: "ok" | "erro" }> =
   produto_excluir: { texto: "Não foi possível excluir o produto.", tipo: "erro" },
   produto_imagem_limpeza: { texto: "O produto foi salvo, mas a imagem anterior não pôde ser removida.", tipo: "erro" },
   produto_excluido_imagem: { texto: "O produto foi excluído, mas a imagem não pôde ser removida.", tipo: "erro" },
+  orcamento_configuracao: { texto: "O banco ainda não está configurado para finalizar orçamentos. Execute supabase/orcamentos.sql no SQL Editor do Supabase.", tipo: "erro" },
+  orcamento_campos: { texto: "Confira o solicitante, os itens, quantidades e condições do orçamento.", tipo: "erro" },
+  orcamento_salvar: { texto: "Não foi possível finalizar o orçamento. Verifique a configuração do banco e tente novamente.", tipo: "erro" },
+  orcamentos_configuracao: { texto: "Execute supabase/orcamentos.sql no SQL Editor do Supabase para configurar os dados da empresa emissora e habilitar os orçamentos.", tipo: "erro" },
+  orcamento_empresa: { texto: "Os dados da empresa emissora estão incompletos. Peça a um administrador para preenchê-los em Dados da empresa antes de finalizar o orçamento.", tipo: "erro" },
 };

@@ -10,6 +10,7 @@ import {
 
 type TipoOrcamento = "produtos" | "servicos" | "produtos-servicos";
 type Linha = { chave: string; itemId: string; quantidade: string };
+type LinhaSalva = { tipo: "produto" | "servico"; id: number; quantidade: number };
 
 function novaLinha(): Linha {
   return { chave: crypto.randomUUID(), itemId: "", quantidade: "1" };
@@ -32,7 +33,7 @@ export default function OrcamentoItens({
   servicos: ServicoOrcamento[];
   erroProdutos?: string;
   erroServicos?: string;
-  onContinue: (totalProdutos: number, totalServicos: number) => void;
+  onContinue: (totalProdutos: number, totalServicos: number, itens: LinhaSalva[]) => void;
 }) {
   const [produtos, setProdutos] = useState(produtosIniciais);
   const [servicos, setServicos] = useState(servicosIniciais);
@@ -74,9 +75,26 @@ export default function OrcamentoItens({
       return;
     }
     setErro("");
+    const itens: LinhaSalva[] = [
+      ...(incluiProdutos ? linhasProdutos.flatMap((linha) => {
+        const id = Number(linha.itemId);
+        const quantidade = Number(linha.quantidade);
+        return linha.itemId && Number.isSafeInteger(id) && id > 0 && Number.isFinite(quantidade) && quantidade > 0
+          ? [{ tipo: "produto" as const, id, quantidade }]
+          : [];
+      }) : []),
+      ...(incluiServicos ? linhasServicos.flatMap((linha) => {
+        const id = Number(linha.itemId);
+        const quantidade = Number(linha.quantidade);
+        return linha.itemId && Number.isSafeInteger(id) && id > 0 && Number.isFinite(quantidade) && quantidade > 0
+          ? [{ tipo: "servico" as const, id, quantidade }]
+          : [];
+      }) : []),
+    ];
     onContinue(
       incluiProdutos ? total(linhasProdutos, produtos) : 0,
-      incluiServicos ? total(linhasServicos, servicos) : 0
+      incluiServicos ? total(linhasServicos, servicos) : 0,
+      itens
     );
   }
 

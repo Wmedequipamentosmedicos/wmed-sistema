@@ -1,7 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
+import { MENSAGENS } from "@/lib/constants";
 import OrcamentoForm from "../OrcamentoForm";
 
-export default async function NovoOrcamentoPage() {
+export default async function NovoOrcamentoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ erro?: string }>;
+}) {
+  const { erro } = await searchParams;
   const supabase = await createClient();
   const [empresasResult, produtosResult, servicosResult] = await Promise.all([
     supabase.from("empresas").select("id, nome, nome_fantasia"),
@@ -27,6 +33,7 @@ export default async function NovoOrcamentoPage() {
         erroEmpresas={empresasResult.error ? "empresas" : undefined}
         erroProdutos={produtosResult.error ? "produtos" : undefined}
         erroServicos={servicosResult.error ? "servicos" : undefined}
+        erroFinalizacao={erro ? MENSAGENS[erro]?.texto : undefined}
       />
     </>
   );

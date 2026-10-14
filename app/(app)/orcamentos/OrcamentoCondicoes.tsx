@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { finalizarOrcamento } from "./actions";
+import type { TipoOrcamento } from "./types";
 
 function moeda(valor: number) {
   return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -12,9 +14,15 @@ function valorNumerico(valor: string) {
 }
 
 export default function OrcamentoCondicoes({
+  empresaId,
+  tipoOrcamento,
+  itens,
   totalProdutos,
   totalServicos,
 }: {
+  empresaId: number;
+  tipoOrcamento: TipoOrcamento;
+  itens: Array<{ tipo: "produto" | "servico"; id: number; quantidade: number }>;
   totalProdutos: number;
   totalServicos: number;
 }) {
@@ -30,8 +38,11 @@ export default function OrcamentoCondicoes({
   const totalFinal = totalComDescontos + valorNumerico(frete);
 
   return (
-    <div id="orcamento-panel-condicoes" className="orcamento-panel" role="tabpanel" aria-labelledby="orcamento-tab-condicoes">
+    <form action={finalizarOrcamento} id="orcamento-panel-condicoes" className="orcamento-panel" role="tabpanel" aria-labelledby="orcamento-tab-condicoes">
       <h2 className="orcamento-itens-titulo">Condições do orçamento</h2>
+      <input type="hidden" name="empresa_id" value={empresaId} />
+      <input type="hidden" name="tipo_orcamento" value={tipoOrcamento} />
+      <input type="hidden" name="itens" value={JSON.stringify(itens)} />
 
       <div className="grid2">
         <label className="campo">
@@ -104,7 +115,9 @@ export default function OrcamentoCondicoes({
         <p>Frete: <strong>{moeda(valorNumerico(frete))}</strong></p>
         <p className="orcamento-total-final">Total do orçamento: <strong>{moeda(totalFinal)}</strong></p>
       </section>
-      <p className="produto-ajuda">Essas informações ainda não são gravadas; o salvamento do orçamento será habilitado na etapa de finalização.</p>
-    </div>
+      <div className="orcamento-acoes-itens">
+        <button className="btn" type="submit">Finalizar orçamento e baixar PDF</button>
+      </div>
+    </form>
   );
 }

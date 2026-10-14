@@ -26,6 +26,9 @@ export default function Nav({ admin }: { admin: boolean }) {
       {admin && (
         <>
           <div className="grupo">Administração</div>
+          <Link href="/configuracoes/empresa" className={ativo("/configuracoes/empresa") ? "on" : ""}>
+            Dados da empresa
+          </Link>
           <Link href="/usuarios" className={ativo("/usuarios") ? "on" : ""}>
             Usuários
           </Link>
