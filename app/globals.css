@@ -86,7 +86,17 @@ h2 { font-size: 24px; margin: 24px 0 10px; }
   background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
 }
 .orcamento-tabs { padding: 14px 24px 0; border-bottom: 1px solid var(--line); }
+.orcamento-tabs button:disabled { color: var(--cinza); cursor: not-allowed; }
 .orcamento-panel { display: grid; gap: 14px; padding: 20px 24px 10px; }
+.orcamento-tipo { min-width: 0; margin: 0; padding: 0; border: 0; }
+.orcamento-tipo legend { margin-bottom: 10px; font-weight: 700; }
+.orcamento-tipo-opcoes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.orcamento-tipo-opcoes label {
+  display: flex; align-items: center; gap: 10px; padding: 16px; border: 1px solid var(--line);
+  border-radius: 6px; background: #fff; cursor: pointer; font-weight: 700;
+}
+.orcamento-tipo-opcoes label.selecionado { border-color: var(--p); background: #eaf2f4; color: var(--p-escuro); }
+.orcamento-tipo-opcoes input { width: auto; }
 .linha-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .orcamento-panel .campo { width: 100%; }
 .orcamento-panel textarea { min-height: 100px; }
@@ -176,6 +186,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--p); outline
 .login-card .faixa { height: 6px; background: var(--p); border-radius: 3px; margin: -32px -32px 24px; border-radius: 10px 10px 0 0; }
 
 @media (max-width: 800px) {
+  .orcamento-tipo-opcoes { grid-template-columns: 1fr; }
   .shell { flex-direction: column; }
   .side { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; }
   .side img.logo { width: 100px; margin: 0 8px; }
