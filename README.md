@@ -1,4 +1,4 @@
-# Sistema WMED · Módulo OS (versão 0.1.2)
+# Sistema WMED · Módulo OS (versão 0.1.4)
 
 Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 
@@ -7,7 +7,7 @@ Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 - **Empresas e clientes**: lista com busca e paginação, cadastro com abas (Endereço, Contato, Observações), editar e excluir.
 - **Produtos**: cadastro, busca, código interno sequencial e fotos privadas no Supabase Storage.
 - **Equipamentos**: lista com busca e paginação, cadastro com todos os campos do Archimedes, abas (Informações adicionais, extras, contrato e observações), editar e excluir.
-- **Orçamentos**: início do fluxo com escolha de empresa ou cliente solicitante e tipo do orçamento.
+- **Orçamentos**: escolha de empresa ou cliente, produtos, serviços ou ambos, com quantidade e cadastro de itens para reutilizar em novos orçamentos.
 
 Ainda **não** tem: ordens de serviço, planos de manutenção, certificados, financeiro e documentos. Entram nas próximas etapas.
 
@@ -23,6 +23,7 @@ Tecnologia: Next.js (site) + Supabase (banco de dados e login) + Vercel (hospeda
 3. Quando o projeto terminar de criar, abra **SQL Editor** > **New query**.
 4. Abra o arquivo `supabase/schema.sql`, copie todo o conteúdo, cole no editor e clique em **Run**. Deve aparecer "Success".
 5. Se o sistema já estiver instalado, execute também `supabase/produtos.sql` no SQL Editor para criar a tabela, as permissões e o armazenamento privado de imagens.
+6. Execute `supabase/servicos.sql` no SQL Editor para criar o catálogo de serviços usado nos orçamentos.
 
 ### 2. Fechar o cadastro público
 1. Em **Authentication** > **Sign In / Providers** (ou **Settings**), desligue a opção **Allow new users to sign up**.

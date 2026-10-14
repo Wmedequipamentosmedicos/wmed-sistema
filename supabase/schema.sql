@@ -135,6 +135,17 @@ create table if not exists public.produtos (
 alter sequence public.produtos_codigo_interno_seq owned by public.produtos.codigo_interno;
 create index if not exists produtos_nome_idx on public.produtos (lower(nome));
 
+-- ---------- Serviços ----------
+create table if not exists public.servicos (
+  id bigint generated always as identity primary key,
+  nome text not null,
+  valor numeric(12, 2) not null check (valor >= 0),
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now()
+);
+
+create unique index if not exists servicos_nome_idx on public.servicos (lower(nome));
+
 -- ---------- Equipamentos ----------
 create table if not exists public.equipamentos (
   id bigint generated always as identity primary key,
@@ -187,7 +198,7 @@ create policy perfis_ler on public.perfis
 do $$
 declare t text;
 begin
-  foreach t in array array['empresas', 'equipamentos', 'tipos_equipamento', 'quadros_trabalho', 'produtos']
+  foreach t in array array['empresas', 'equipamentos', 'tipos_equipamento', 'quadros_trabalho', 'produtos', 'servicos']
   loop
     execute format('alter table public.%I enable row level security', t);
 

@@ -2,16 +2,27 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import OrcamentoItens from "./OrcamentoItens";
 
 type Empresa = { id: number; nome: string; nome_fantasia: string | null };
-type TipoOrcamento = "pecas" | "servicos" | "pecas-servicos";
+type TipoOrcamento = "produtos" | "servicos" | "produtos-servicos";
+type Produto = { id: number; codigo_interno: number; nome: string; unidade_medida: string; valor: number };
+type Servico = { id: number; nome: string; valor: number };
 
 export default function OrcamentoForm({
   empresas,
-  erro,
+  produtos,
+  servicos,
+  erroEmpresas,
+  erroProdutos,
+  erroServicos,
 }: {
   empresas: Empresa[];
-  erro?: string;
+  produtos: Produto[];
+  servicos: Servico[];
+  erroEmpresas?: string;
+  erroProdutos?: string;
+  erroServicos?: string;
 }) {
   const [etapa, setEtapa] = useState(0);
   const [solicitanteId, setSolicitanteId] = useState("");
@@ -50,6 +61,18 @@ export default function OrcamentoForm({
         >
           Tipo de orçamento
         </button>
+        <button
+          id="orcamento-tab-itens"
+          type="button"
+          role="tab"
+          aria-selected={etapa === 2}
+          aria-controls="orcamento-panel-itens"
+          className={etapa === 2 ? "on" : ""}
+          disabled={!tipoOrcamento}
+          onClick={() => setEtapa(2)}
+        >
+          Produtos e serviços
+        </button>
       </div>
 
       {etapa === 0 ? (
@@ -59,7 +82,7 @@ export default function OrcamentoForm({
           role="tabpanel"
           aria-labelledby="orcamento-tab-solicitante"
         >
-          {erro && (
+          {erroEmpresas && (
             <div className="aviso erro" role="alert">
               Não foi possível carregar as empresas e clientes cadastrados.
             </div>
@@ -70,7 +93,7 @@ export default function OrcamentoForm({
               name="solicitante_id"
               value={solicitanteId}
               required
-              disabled={Boolean(erro) || empresas.length === 0}
+              disabled={Boolean(erroEmpresas) || empresas.length === 0}
               onChange={(event) => {
                 setSolicitanteId(event.target.value);
                 setEtapa(1);
@@ -87,7 +110,7 @@ export default function OrcamentoForm({
             </select>
           </label>
         </div>
-      ) : (
+      ) : etapa === 1 ? (
         <div
           id="orcamento-panel-tipo"
           className="orcamento-panel"
@@ -98,9 +121,9 @@ export default function OrcamentoForm({
             <legend>Como será o orçamento?</legend>
             <div className="orcamento-tipo-opcoes">
               {([
-                ["pecas", "Produtos"],
+                ["produtos", "Produtos"],
                 ["servicos", "Serviços"],
-                ["pecas-servicos", "Produtos/Serviços"],
+                ["produtos-servicos", "Produtos/Serviços"],
               ] as const).map(([value, label]) => (
                 <label className={tipoOrcamento === value ? "selecionado" : ""} key={value}>
                   <input
@@ -116,12 +139,27 @@ export default function OrcamentoForm({
             </div>
           </fieldset>
         </div>
+      ) : (
+        tipoOrcamento && (
+          <OrcamentoItens
+            tipo={tipoOrcamento}
+            produtos={produtos}
+            servicos={servicos}
+            erroProdutos={erroProdutos}
+            erroServicos={erroServicos}
+          />
+        )
       )}
 
       <div className="rodape-form orcamento-rodape">
-        {etapa === 1 && (
-          <button className="btn sec" type="button" onClick={() => setEtapa(0)}>
+        {etapa > 0 && (
+          <button className="btn sec" type="button" onClick={() => setEtapa(etapa - 1)}>
             Voltar
+          </button>
+        )}
+        {etapa === 1 && (
+          <button className="btn" type="button" disabled={!tipoOrcamento} onClick={() => setEtapa(2)}>
+            Escolher produtos e serviços
           </button>
         )}
         <Link className="btn cinza" href="/orcamentos">Cancelar</Link>
