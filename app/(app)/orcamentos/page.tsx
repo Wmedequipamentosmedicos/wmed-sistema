@@ -1,7 +1,10 @@
 import Link from "next/link";
 import Aviso from "@/components/Aviso";
+import DeleteButton from "@/components/DeleteButton";
 import { PAGE_SIZE } from "@/lib/constants";
+import { getPerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { excluirOrcamento } from "./actions";
 
 function moeda(valor: number) {
   return Number(valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -28,6 +31,7 @@ export default async function OrcamentosPage({
 }) {
   const sp = await searchParams;
   const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
+  const perfil = await getPerfil();
   const supabase = await createClient();
   const { data, count, error } = await supabase
     .from("orcamentos")
@@ -75,6 +79,7 @@ export default async function OrcamentosPage({
                 <th>Valor</th>
                 <th>Status</th>
                 <th>PDF</th>
+                {perfil.perfil === "admin" && <th>Ações</th>}
               </tr>
             </thead>
             <tbody>
@@ -88,6 +93,15 @@ export default async function OrcamentosPage({
                     <td>{moeda(item.total)}</td>
                     <td><span className="tag ok">Finalizado</span></td>
                     <td><Link className="btn mini" href={`/orcamentos/${item.id}/pdf`}>Baixar PDF</Link></td>
+                    {perfil.perfil === "admin" && (
+                      <td className="acoes">
+                        <DeleteButton
+                          action={excluirOrcamento}
+                          id={item.id}
+                          nome={`orçamento ${String(item.id).padStart(6, "0")}`}
+                        />
+                      </td>
+                    )}
                   </tr>
                 );
               })}

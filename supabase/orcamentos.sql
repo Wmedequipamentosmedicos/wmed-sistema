@@ -80,6 +80,10 @@ alter table public.orcamentos enable row level security;
 drop policy if exists orcamentos_ler on public.orcamentos;
 create policy orcamentos_ler on public.orcamentos
   for select to authenticated using (public.usuario_ativo());
+drop policy if exists orcamentos_excluir on public.orcamentos;
+create policy orcamentos_excluir on public.orcamentos
+  for delete to authenticated using (public.usuario_admin());
+grant delete on public.orcamentos to authenticated;
 
 alter table public.orcamento_itens enable row level security;
 drop policy if exists orcamento_itens_ler on public.orcamento_itens;

@@ -90,3 +90,31 @@ export async function finalizarOrcamento(formData: FormData): Promise<never> {
   revalidatePath("/orcamentos");
   redirect(`/orcamentos/${data}/pdf`);
 }
+
+export async function excluirOrcamento(formData: FormData): Promise<never> {
+  const perfil = await getPerfil();
+  if (!perfil.ativo || perfil.perfil !== "admin") redirect("/orcamentos?erro=permissao");
+
+  const id = num(formData, "id");
+  if (id === null || id <= 0) redirect("/orcamentos?erro=orcamento_excluir");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("orcamentos")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.error("Falha ao excluir orçamento:", { code: error.code, message: error.message });
+    if (error.code === "42P01" || error.code === "PGRST205") {
+      redirect("/orcamentos?erro=orcamentos_configuracao");
+    }
+    redirect(`/orcamentos?erro=${error.code === "42501" ? "permissao" : "orcamento_excluir"}`);
+  }
+  if (!data) redirect("/orcamentos?erro=orcamento_excluir");
+
+  revalidatePath("/orcamentos");
+  redirect("/orcamentos?ok=excluido");
+}
