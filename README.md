@@ -1,4 +1,4 @@
-# Sistema WMED · Módulo OS (versão 0.1.1)
+# Sistema WMED · Módulo OS (versão 0.1.2)
 
 Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 
@@ -6,6 +6,7 @@ Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 - **Usuários** (somente administrador): criar usuário, escolher o perfil, desativar e reativar.
 - **Empresas e clientes**: lista com busca e paginação, cadastro com abas (Endereço, Contato, Observações), editar e excluir.
 - **Equipamentos**: lista com busca e paginação, cadastro com todos os campos do Archimedes, abas (Informações adicionais, extras, contrato e observações), editar e excluir.
+- **Orçamentos**: início do fluxo com escolha de empresa ou cliente solicitante e tipo do orçamento.
 
 Ainda **não** tem: ordens de serviço, planos de manutenção, certificados, financeiro e documentos. Entram nas próximas etapas.
 

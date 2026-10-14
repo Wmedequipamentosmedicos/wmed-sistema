@@ -37,10 +37,16 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           </summary>
           <div className="version-notes">
             <section>
+              <b>Versão {packageJson.version}</b>
+              <ul>
+                <li>Orçamentos: escolha de empresa ou cliente solicitante e tipo do orçamento.</li>
+              </ul>
+            </section>
+            <section>
               <b>Versão 0.1.1</b>
               <ul>
                 <li>Novidades do sistema disponíveis ao clicar na versão.</li>
-                <li>Número da versão atualizado automaticamente pelo projeto.</li>
+                <li>Indicação da versão atual no menu lateral.</li>
               </ul>
             </section>
             <section>
