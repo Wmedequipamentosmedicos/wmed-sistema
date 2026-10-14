@@ -46,6 +46,7 @@ h2 { font-size: 24px; margin: 24px 0 10px; }
 }
 .side nav a:hover { background: rgba(255,255,255,.08); }
 .side nav a.on { background: var(--p); color: #fff; font-weight: 700; }
+.side .app-version { color: #8fa6ab; padding: 8px 12px; font-size: 12px; }
 .side .user { margin-top: auto; padding: 12px; border-top: 1px solid rgba(255,255,255,.15); font-size: 14px; }
 .side .user small { display: block; color: #8fa6ab; }
 .side .user button { margin-top: 8px; }

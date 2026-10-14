@@ -3,6 +3,7 @@ import { getPerfil } from "@/lib/auth";
 import { logout } from "@/app/login/actions";
 import Nav from "@/components/Nav";
 import { PERFIS } from "@/lib/constants";
+import packageJson from "../../package.json";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const p = await getPerfil();
@@ -29,6 +30,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       <aside className="side">
         <img className="logo" src="/logo-branco.png" alt="Wmed®" />
         <Nav admin={p.perfil === "admin"} />
+        <small className="app-version">Versão {packageJson.version}</small>
         <div className="user">
           {p.nome}
           <small>{nomePerfil}</small>
