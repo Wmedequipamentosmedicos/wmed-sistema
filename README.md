@@ -5,6 +5,7 @@ Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 - **Login** com e-mail e senha (somente quem for cadastrado entra).
 - **Usuários** (somente administrador): criar usuário, escolher o perfil, desativar e reativar.
 - **Empresas e clientes**: lista com busca e paginação, cadastro com abas (Endereço, Contato, Observações), editar e excluir.
+- **Produtos**: cadastro, busca, código interno sequencial e fotos privadas no Supabase Storage.
 - **Equipamentos**: lista com busca e paginação, cadastro com todos os campos do Archimedes, abas (Informações adicionais, extras, contrato e observações), editar e excluir.
 - **Orçamentos**: início do fluxo com escolha de empresa ou cliente solicitante e tipo do orçamento.
 
@@ -21,6 +22,7 @@ Tecnologia: Next.js (site) + Supabase (banco de dados e login) + Vercel (hospeda
 2. Escolha um nome (ex.: `wmed`), defina e **guarde a senha do banco**, e escolha a região **South America (São Paulo)**.
 3. Quando o projeto terminar de criar, abra **SQL Editor** > **New query**.
 4. Abra o arquivo `supabase/schema.sql`, copie todo o conteúdo, cole no editor e clique em **Run**. Deve aparecer "Success".
+5. Se o sistema já estiver instalado, execute também `supabase/produtos.sql` no SQL Editor para criar a tabela, as permissões e o armazenamento privado de imagens.
 
 ### 2. Fechar o cadastro público
 1. Em **Authentication** > **Sign In / Providers** (ou **Settings**), desligue a opção **Allow new users to sign up**.
@@ -42,7 +44,7 @@ Em **Project Settings** > **API** (ou **API Keys**), copie:
 1. Instale o Node.js (nodejs.org, versão LTS).
 2. Nesta pasta, copie `.env.example` para `.env.local` e preencha as três chaves.
 3. No Terminal, nesta pasta: `npm install` e depois `npm run dev`.
-4. Abra http://localhost:3000, entre com o usuário do passo 3 e cadastre uma empresa e um equipamento.
+4. Abra http://localhost:3000, entre com o usuário do passo 3 e cadastre uma empresa, um equipamento e um produto.
 
 ### 6. Publicar na Vercel
 1. Crie um repositório **privado** no GitHub e envie esta pasta (o arquivo `.gitignore` já impede o envio de chaves).
