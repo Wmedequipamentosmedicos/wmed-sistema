@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 const orcamentos = [
-  { numero: "5477", tipo: "Peças", solicitante: "Hospital Nilo M. de C. A. Santos", data: "08/10/2026", validade: "08/11/2026", valor: "R$ 5.200,00", status: "Pendente" },
-  { numero: "5476", tipo: "Peças", solicitante: "AME Sorocaba - Fundação do ABC", data: "08/10/2026", validade: "08/11/2026", valor: "R$ 4.100,00", status: "Pendente" },
+  { numero: "5477", tipo: "Produtos", solicitante: "Hospital Nilo M. de C. A. Santos", data: "08/10/2026", validade: "08/11/2026", valor: "R$ 5.200,00", status: "Pendente" },
+  { numero: "5476", tipo: "Produtos", solicitante: "AME Sorocaba - Fundação do ABC", data: "08/10/2026", validade: "08/11/2026", valor: "R$ 4.100,00", status: "Pendente" },
   { numero: "5475", tipo: "Serviços", solicitante: "Banco do OIhos da Sorocaba", data: "08/10/2026", validade: "08/11/2026", valor: "R$ 2.750,00", status: "Pendente" },
   { numero: "5474", tipo: "Serviços", solicitante: "Unimed de Itapetininga", data: "08/10/2026", validade: "08/11/2026", valor: "R$ 4.850,00", status: "Pendente" },
   { numero: "5473", tipo: "Serviços", solicitante: "Banco do OIhos da Sorocaba", data: "05/10/2026", validade: "04/11/2026", valor: "R$ 4.000,00", status: "Aprovado" },

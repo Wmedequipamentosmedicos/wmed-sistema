@@ -98,9 +98,9 @@ export default function OrcamentoForm({
             <legend>Como será o orçamento?</legend>
             <div className="orcamento-tipo-opcoes">
               {([
-                ["pecas", "Peças"],
+                ["pecas", "Produtos"],
                 ["servicos", "Serviços"],
-                ["pecas-servicos", "Peças/Serviços"],
+                ["pecas-servicos", "Produtos/Serviços"],
               ] as const).map(([value, label]) => (
                 <label className={tipoOrcamento === value ? "selecionado" : ""} key={value}>
                   <input
