@@ -151,6 +151,14 @@ begin
     or p_desconto_valor < 0 or p_frete < 0 then
     raise exception 'Dados do orçamento inválidos' using errcode = '22023';
   end if;
+  if exists (
+    select 1
+    from jsonb_array_elements(p_itens) as entrada(item)
+    group by item->>'tipo', item->>'id'
+    having count(*) > 1
+  ) then
+    raise exception 'Não é permitido repetir produtos ou serviços no orçamento' using errcode = '22023';
+  end if;
 
   for v_item in select value from jsonb_array_elements(p_itens)
   loop

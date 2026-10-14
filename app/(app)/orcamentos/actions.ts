@@ -66,6 +66,8 @@ export async function finalizarOrcamento(formData: FormData): Promise<never> {
   if (itens.some((item) => !tiposPermitidos[tipoOrcamento].includes(item.tipo))) {
     redirect(`${voltar}?erro=orcamento_campos`);
   }
+  const itensUnicos = new Set(itens.map((item) => `${item.tipo}:${item.id}`));
+  if (itensUnicos.size !== itens.length) redirect(`${voltar}?erro=orcamento_campos`);
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("finalizar_orcamento", {

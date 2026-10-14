@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import SearchDialog from "@/components/SearchDialog";
 import OrcamentoCondicoes from "./OrcamentoCondicoes";
 import OrcamentoItens from "./OrcamentoItens";
 
@@ -35,6 +36,7 @@ export default function OrcamentoForm({
   const [totalProdutos, setTotalProdutos] = useState(0);
   const [totalServicos, setTotalServicos] = useState(0);
   const [itens, setItens] = useState<LinhaSalva[]>([]);
+  const solicitante = empresas.find((empresa) => String(empresa.id) === solicitanteId);
 
   return (
     <div className="form-card orcamento-card">
@@ -109,28 +111,27 @@ export default function OrcamentoForm({
               Não foi possível carregar as empresas e clientes cadastrados.
             </div>
           )}
-          <label className="campo">
+          <div className="campo">
             <span>Solicitante</span>
-            <select
-              name="solicitante_id"
-              value={solicitanteId}
-              required
+            <SearchDialog
+              title="Buscar cliente ou empresa"
+              searchLabel="Nome, nome fantasia ou identificação"
+              placeholder={empresas.length ? "Buscar e selecionar cliente" : "Nenhum cliente cadastrado"}
               disabled={Boolean(erroEmpresas) || empresas.length === 0}
-              onChange={(event) => {
-                setSolicitanteId(event.target.value);
+              items={empresas.map((empresa) => ({
+                id: empresa.id,
+                label: empresa.nome,
+                detail: empresa.nome_fantasia ?? undefined,
+              }))}
+              selectedId={solicitante ? solicitante.id : null}
+              onSelect={(empresa) => {
+                setSolicitanteId(String(empresa.id));
                 setEtapa(1);
               }}
-            >
-              <option value="" disabled>
-                {empresas.length ? "Selecione uma empresa ou cliente" : "Nenhuma empresa ou cliente cadastrado"}
-              </option>
-              {empresas.map((empresa) => (
-                <option key={empresa.id} value={empresa.id}>
-                  {empresa.nome_fantasia ? `${empresa.nome} (${empresa.nome_fantasia})` : empresa.nome}
-                </option>
-              ))}
-            </select>
-          </label>
+            />
+            {!solicitante && empresas.length > 0 && <small>Selecione o cliente para continuar.</small>}
+            {solicitante && <input type="hidden" name="solicitante_id" value={solicitante.id} />}
+          </div>
         </div>
       ) : etapa === 1 ? (
         <div

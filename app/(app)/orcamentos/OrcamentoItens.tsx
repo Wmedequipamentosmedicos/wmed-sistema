@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import SearchDialog from "@/components/SearchDialog";
 import {
   criarProdutoNoOrcamento,
   criarServicoNoOrcamento,
@@ -51,6 +52,24 @@ export default function OrcamentoItens({
     atualizacao: Partial<Linha>
   ) {
     setLinhas(linhas.map((linha) => linha.chave === chave ? { ...linha, ...atualizacao } : linha));
+  }
+
+  function selecionarProduto(chave: string, id: number) {
+    if (linhasProdutos.some((linha) => linha.chave !== chave && linha.itemId === String(id))) {
+      setErro("Esse produto já foi adicionado ao orçamento.");
+      return;
+    }
+    setErro("");
+    atualizarLinha(linhasProdutos, setLinhasProdutos, chave, { itemId: String(id) });
+  }
+
+  function selecionarServico(chave: string, id: number) {
+    if (linhasServicos.some((linha) => linha.chave !== chave && linha.itemId === String(id))) {
+      setErro("Esse serviço já foi adicionado ao orçamento.");
+      return;
+    }
+    setErro("");
+    atualizarLinha(linhasServicos, setLinhasServicos, chave, { itemId: String(id) });
   }
 
   function total(linhas: Linha[], itens: Array<{ id: number; valor: number }>) {
@@ -155,21 +174,24 @@ export default function OrcamentoItens({
             const produto = produtos.find((opcao) => String(opcao.id) === linha.itemId);
             return (
               <div className="orcamento-item-linha" key={linha.chave}>
-                <label className="campo">
+                <div className="campo">
                   <span>Produto {indice + 1}</span>
-                  <select
-                    value={linha.itemId}
+                  <SearchDialog
+                    title="Buscar produto"
+                    searchLabel="Código interno ou nome do produto"
+                    placeholder="Buscar produto"
                     disabled={Boolean(erroProdutos)}
-                    onChange={(event) => atualizarLinha(linhasProdutos, setLinhasProdutos, linha.chave, { itemId: event.target.value })}
-                  >
-                    <option value="">Selecione um produto</option>
-                    {produtos.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.codigo_interno} — {item.nome} ({moeda(Number(item.valor))}/{item.unidade_medida})
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                    items={produtos
+                      .filter((item) => item.id === produto?.id || !linhasProdutos.some((selecionado) => selecionado.chave !== linha.chave && selecionado.itemId === String(item.id)))
+                      .map((item) => ({
+                        id: item.id,
+                        label: `${item.codigo_interno} — ${item.nome}`,
+                        detail: `${moeda(Number(item.valor))}/${item.unidade_medida}`,
+                      }))}
+                    selectedId={produto?.id ?? null}
+                    onSelect={(item) => selecionarProduto(linha.chave, item.id)}
+                  />
+                </div>
                 <label className="campo">
                   <span>Quantidade</span>
                   <input
@@ -222,19 +244,24 @@ export default function OrcamentoItens({
             const servico = servicos.find((opcao) => String(opcao.id) === linha.itemId);
             return (
               <div className="orcamento-item-linha" key={linha.chave}>
-                <label className="campo">
+                <div className="campo">
                   <span>Serviço {indice + 1}</span>
-                  <select
-                    value={linha.itemId}
+                  <SearchDialog
+                    title="Buscar serviço"
+                    searchLabel="Nome do serviço"
+                    placeholder="Buscar serviço"
                     disabled={Boolean(erroServicos)}
-                    onChange={(event) => atualizarLinha(linhasServicos, setLinhasServicos, linha.chave, { itemId: event.target.value })}
-                  >
-                    <option value="">Selecione um serviço</option>
-                    {servicos.map((item) => (
-                      <option key={item.id} value={item.id}>{item.nome} ({moeda(Number(item.valor))})</option>
-                    ))}
-                  </select>
-                </label>
+                    items={servicos
+                      .filter((item) => item.id === servico?.id || !linhasServicos.some((selecionado) => selecionado.chave !== linha.chave && selecionado.itemId === String(item.id)))
+                      .map((item) => ({
+                        id: item.id,
+                        label: item.nome,
+                        detail: moeda(Number(item.valor)),
+                      }))}
+                    selectedId={servico?.id ?? null}
+                    onSelect={(item) => selecionarServico(linha.chave, item.id)}
+                  />
+                </div>
                 <label className="campo">
                   <span>Quantidade</span>
                   <input

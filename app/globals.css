@@ -102,6 +102,29 @@ h2 { font-size: 24px; margin: 24px 0 10px; }
 .orcamento-secao-itens h3 { font-size: 22px; }
 .orcamento-item-linha { display: grid; grid-template-columns: minmax(0, 2fr) minmax(130px, 1fr) auto auto; align-items: end; gap: 12px; }
 .orcamento-item-subtotal { padding-bottom: 10px; font-weight: 700; white-space: nowrap; }
+.busca-selecao-trigger { width: 100%; justify-content: space-between; text-align: left; min-height: 42px; }
+.busca-dialog-backdrop {
+  position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px;
+  background: rgba(20, 35, 38, .58);
+}
+.busca-dialog {
+  display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 14px;
+  width: min(680px, 100%); max-height: min(80vh, 760px); padding: 20px;
+  border-radius: 10px; background: #fff; box-shadow: 0 16px 48px rgba(0, 0, 0, .24);
+}
+.busca-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.busca-dialog-header h2 { margin: 0; }
+.busca-dialog-campo { display: grid; gap: 4px; }
+.busca-dialog-resultados { min-height: 0; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; }
+.busca-dialog-item {
+  display: grid; gap: 2px; width: 100%; padding: 10px 12px; border: 0; border-bottom: 1px solid var(--line);
+  background: #fff; color: var(--ink); text-align: left; font: inherit; cursor: pointer;
+}
+.busca-dialog-item:last-child { border-bottom: 0; }
+.busca-dialog-item:hover, .busca-dialog-item[aria-selected="true"] { background: #eaf2f4; }
+.busca-dialog-item span { font-weight: 700; }
+.busca-dialog-item small, .busca-dialog-contagem { color: #6b7d81; }
+.busca-dialog-contagem { margin: 0; font-size: 13px; text-align: right; }
 .orcamento-acoes-itens { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
 .orcamento-cadastro-rapido { flex: 1 1 100%; }
 .orcamento-cadastro-rapido summary { display: inline-flex; list-style: none; }
@@ -210,6 +233,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--p); outline
 @media (max-width: 800px) {
   .orcamento-tipo-opcoes { grid-template-columns: 1fr; }
   .orcamento-item-linha { grid-template-columns: 1fr 1fr; }
+  .busca-dialog-backdrop { padding: 10px; }
+  .busca-dialog { max-height: 90vh; padding: 14px; }
   .shell { flex-direction: column; }
   .side { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; }
   .side img.logo { width: 100px; margin: 0 8px; }
