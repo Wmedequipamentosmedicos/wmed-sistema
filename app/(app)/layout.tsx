@@ -39,6 +39,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             <section>
               <b>Versão {packageJson.version}</b>
               <ul>
+                <li>Orçamentos: forma de pagamento, descontos, frete, prazo e responsável.</li>
                 <li>Orçamentos: seleção de produtos e serviços com quantidade e cadastro rápido.</li>
                 <li>Cadastro de produtos com código interno sequencial e foto.</li>
                 <li>Orçamentos: escolha de empresa ou cliente solicitante e tipo do orçamento.</li>

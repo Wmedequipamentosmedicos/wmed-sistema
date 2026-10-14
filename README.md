@@ -1,4 +1,4 @@
-# Sistema WMED · Módulo OS (versão 0.1.4)
+# Sistema WMED · Módulo OS (versão 0.1.5)
 
 Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 
@@ -7,7 +7,7 @@ Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 - **Empresas e clientes**: lista com busca e paginação, cadastro com abas (Endereço, Contato, Observações), editar e excluir.
 - **Produtos**: cadastro, busca, código interno sequencial e fotos privadas no Supabase Storage.
 - **Equipamentos**: lista com busca e paginação, cadastro com todos os campos do Archimedes, abas (Informações adicionais, extras, contrato e observações), editar e excluir.
-- **Orçamentos**: escolha de empresa ou cliente, produtos, serviços ou ambos, com quantidade e cadastro de itens para reutilizar em novos orçamentos.
+- **Orçamentos**: escolha de empresa ou cliente, produtos, serviços ou ambos, quantidades, forma de pagamento, descontos, frete, prazo e informações adicionais.
 
 Ainda **não** tem: ordens de serviço, planos de manutenção, certificados, financeiro e documentos. Entram nas próximas etapas.
 

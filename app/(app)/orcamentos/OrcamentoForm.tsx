@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import OrcamentoCondicoes from "./OrcamentoCondicoes";
 import OrcamentoItens from "./OrcamentoItens";
 
 type Empresa = { id: number; nome: string; nome_fantasia: string | null };
@@ -27,6 +28,9 @@ export default function OrcamentoForm({
   const [etapa, setEtapa] = useState(0);
   const [solicitanteId, setSolicitanteId] = useState("");
   const [tipoOrcamento, setTipoOrcamento] = useState<TipoOrcamento | "">("");
+  const [itensConfirmados, setItensConfirmados] = useState(false);
+  const [totalProdutos, setTotalProdutos] = useState(0);
+  const [totalServicos, setTotalServicos] = useState(0);
 
   return (
     <div className="form-card orcamento-card">
@@ -72,6 +76,18 @@ export default function OrcamentoForm({
           onClick={() => setEtapa(2)}
         >
           Produtos e serviços
+        </button>
+        <button
+          id="orcamento-tab-condicoes"
+          type="button"
+          role="tab"
+          aria-selected={etapa === 3}
+          aria-controls="orcamento-panel-condicoes"
+          className={etapa === 3 ? "on" : ""}
+          disabled={!itensConfirmados}
+          onClick={() => setEtapa(3)}
+        >
+          Condições do orçamento
         </button>
       </div>
 
@@ -141,13 +157,26 @@ export default function OrcamentoForm({
         </div>
       ) : (
         tipoOrcamento && (
-          <OrcamentoItens
-            tipo={tipoOrcamento}
-            produtos={produtos}
-            servicos={servicos}
-            erroProdutos={erroProdutos}
-            erroServicos={erroServicos}
-          />
+          <>
+            <div hidden={etapa !== 2}>
+              <OrcamentoItens
+                tipo={tipoOrcamento}
+                produtos={produtos}
+                servicos={servicos}
+                erroProdutos={erroProdutos}
+                erroServicos={erroServicos}
+                onContinue={(subtotalProdutos, subtotalServicos) => {
+                  setTotalProdutos(subtotalProdutos);
+                  setTotalServicos(subtotalServicos);
+                  setItensConfirmados(true);
+                  setEtapa(3);
+                }}
+              />
+            </div>
+            <div hidden={etapa !== 3}>
+              <OrcamentoCondicoes totalProdutos={totalProdutos} totalServicos={totalServicos} />
+            </div>
+          </>
         )
       )}
 

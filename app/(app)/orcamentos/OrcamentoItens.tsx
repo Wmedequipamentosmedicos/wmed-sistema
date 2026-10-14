@@ -25,12 +25,14 @@ export default function OrcamentoItens({
   servicos: servicosIniciais,
   erroProdutos,
   erroServicos,
+  onContinue,
 }: {
   tipo: TipoOrcamento;
   produtos: ProdutoOrcamento[];
   servicos: ServicoOrcamento[];
   erroProdutos?: string;
   erroServicos?: string;
+  onContinue: (totalProdutos: number, totalServicos: number) => void;
 }) {
   const [produtos, setProdutos] = useState(produtosIniciais);
   const [servicos, setServicos] = useState(servicosIniciais);
@@ -56,6 +58,26 @@ export default function OrcamentoItens({
       const quantidade = Number(linha.quantidade);
       return soma + (item && Number.isFinite(quantidade) ? item.valor * quantidade : 0);
     }, 0);
+  }
+
+  function continuar() {
+    const produtoInvalido = incluiProdutos && !linhasProdutos.some((linha) => {
+      const quantidade = Number(linha.quantidade);
+      return linha.itemId && Number.isFinite(quantidade) && quantidade > 0;
+    });
+    const servicoInvalido = incluiServicos && !linhasServicos.some((linha) => {
+      const quantidade = Number(linha.quantidade);
+      return linha.itemId && Number.isFinite(quantidade) && quantidade > 0;
+    });
+    if (produtoInvalido || servicoInvalido) {
+      setErro("Selecione ao menos um item válido e informe uma quantidade maior que zero em cada categoria do orçamento.");
+      return;
+    }
+    setErro("");
+    onContinue(
+      incluiProdutos ? total(linhasProdutos, produtos) : 0,
+      incluiServicos ? total(linhasServicos, servicos) : 0
+    );
   }
 
   async function salvarProduto(event: FormEvent<HTMLFormElement>) {
@@ -230,6 +252,12 @@ export default function OrcamentoItens({
           <p className="orcamento-total-secao">Total de serviços: {moeda(total(linhasServicos, servicos))}</p>
         </section>
       )}
+
+      <div className="orcamento-acoes-itens">
+        <button className="btn" type="button" onClick={continuar}>
+          Continuar para as condições
+        </button>
+      </div>
     </div>
   );
 }
