@@ -100,7 +100,7 @@ export default function OrcamentoForm({
               {([
                 ["pecas", "Peças"],
                 ["servicos", "Serviços"],
-                ["pecas-servicos", "Peças/Serviços juntos"],
+                ["pecas-servicos", "Peças/Serviços"],
               ] as const).map(([value, label]) => (
                 <label className={tipoOrcamento === value ? "selecionado" : ""} key={value}>
                   <input
