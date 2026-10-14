@@ -29,6 +29,8 @@ export const MENSAGENS: Record<string, { texto: string; tipo: "ok" | "erro" }> =
   produto_imagem: { texto: "Selecione uma imagem válida de até 5 MB (JPG, PNG, WebP ou GIF).", tipo: "erro" },
   produto_imagem_salvar: { texto: "Não foi possível enviar a imagem. Verifique se o armazenamento de produtos foi configurado no Supabase.", tipo: "erro" },
   produto_imagem_carregar: { texto: "Não foi possível carregar a imagem deste produto.", tipo: "erro" },
+  produto_configuracao: { texto: "A tabela de produtos não está configurada no Supabase. Execute o arquivo supabase/produtos.sql no SQL Editor do projeto.", tipo: "erro" },
+  produto_permissao: { texto: "O Supabase não permitiu salvar o produto. Verifique se as permissões da migração supabase/produtos.sql foram aplicadas.", tipo: "erro" },
   produto_salvar: { texto: "Não foi possível salvar o produto.", tipo: "erro" },
   produto_excluir: { texto: "Não foi possível excluir o produto.", tipo: "erro" },
   produto_imagem_limpeza: { texto: "O produto foi salvo, mas a imagem anterior não pôde ser removida.", tipo: "erro" },

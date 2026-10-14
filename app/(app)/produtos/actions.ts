@@ -14,6 +14,12 @@ const TIPOS_IMAGEM: Record<string, string> = {
   "image/gif": "gif",
 };
 
+function codigoErroBanco(codigo: string | undefined) {
+  if (codigo === "42P01" || codigo === "PGRST205") return "produto_configuracao";
+  if (codigo === "42501") return "produto_permissao";
+  return "produto_salvar";
+}
+
 function validarImagem(valor: FormDataEntryValue | null): valor is File {
   return valor instanceof File && valor.size > 0 && valor.size <= TAMANHO_MAXIMO_IMAGEM && valor.type in TIPOS_IMAGEM;
 }
@@ -53,7 +59,11 @@ export async function salvarProduto(formData: FormData) {
   let imagemAnterior: string | null = null;
   if (id) {
     const { data, error } = await supabase.from("produtos").select("imagem_path").eq("id", id).maybeSingle();
-    if (error || !data) redirect("/produtos?erro=produto_salvar");
+    if (error) {
+      console.error("Falha ao carregar produto no Supabase:", { code: error.code, message: error.message });
+      redirect(`/produtos?erro=${codigoErroBanco(error.code)}`);
+    }
+    if (!data) redirect("/produtos?erro=produto_salvar");
     imagemAnterior = data.imagem_path;
   }
 
@@ -83,8 +93,12 @@ export async function salvarProduto(formData: FormData) {
     : await supabase.from("produtos").insert(linha).select("id").single();
 
   if (resultado.error) {
+    console.error("Falha ao salvar produto no Supabase:", {
+      code: resultado.error.code,
+      message: resultado.error.message,
+    });
     if (novaImagem) await removerImagem(supabase, novaImagem);
-    redirect(`${voltar}?erro=produto_salvar`);
+    redirect(`${voltar}?erro=${codigoErroBanco(resultado.error.code)}`);
   }
 
   revalidatePath("/produtos");
