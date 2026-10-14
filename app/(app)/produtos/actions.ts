@@ -110,6 +110,97 @@ export async function salvarProduto(formData: FormData) {
   redirect("/produtos?ok=ok");
 }
 
+type DadosImportacao = {
+  nome: string;
+  categoria: string;
+  unidade_medida: string;
+  valor: string;
+  fabricante: string;
+};
+
+function valorImportado(valor: string) {
+  let normalizado = valor.trim().replace(/[R$\s]/g, "");
+  if (normalizado.includes(",")) {
+    normalizado = normalizado.replace(/\./g, "").replace(",", ".");
+  }
+  return Number(normalizado);
+}
+
+export async function importarProdutos(conteudo: string): Promise<{ erro: string } | { mensagem: string }> {
+  const perfil = await getPerfil();
+  if (!perfil.ativo) return { erro: "Seu usuário não tem permissão para importar produtos." };
+
+  let produtos: unknown;
+  try {
+    produtos = JSON.parse(conteudo);
+  } catch {
+    return { erro: "Os dados da planilha estão inválidos. Carregue o arquivo novamente." };
+  }
+  if (!Array.isArray(produtos) || produtos.length === 0 || produtos.length > 2000) {
+    return { erro: "A importação precisa conter entre 1 e 2.000 produtos." };
+  }
+
+  const erros: string[] = [];
+  const registros: Array<{
+    nome: string;
+    categoria: string;
+    unidade_medida: string;
+    valor: number;
+    fabricante: string | null;
+  }> = [];
+
+  produtos.forEach((item: unknown, indice: number) => {
+    if (!item || typeof item !== "object") {
+      erros.push(`Linha ${indice + 2}: dados inválidos.`);
+      return;
+    }
+    const dados = item as Partial<DadosImportacao>;
+    const nome = typeof dados.nome === "string" ? dados.nome.trim() : "";
+    const categoria = typeof dados.categoria === "string" ? dados.categoria.trim() : "";
+    const unidadeMedida = typeof dados.unidade_medida === "string" ? dados.unidade_medida.trim() : "";
+    const fabricante = typeof dados.fabricante === "string" ? dados.fabricante.trim() : "";
+    const valorTexto = typeof dados.valor === "string" ? dados.valor : "";
+    const valor = valorImportado(valorTexto);
+
+    if (!nome || !categoria || !unidadeMedida || !valorTexto.trim() || !Number.isFinite(valor) || valor < 0) {
+      erros.push(`Linha ${indice + 2}: produto, categoria, unidade e valor precisam estar preenchidos corretamente.`);
+      return;
+    }
+    if (nome.length > 200 || categoria.length > 100 || unidadeMedida.length > 50 || fabricante.length > 200) {
+      erros.push(`Linha ${indice + 2}: um dos campos de texto excede o tamanho permitido.`);
+      return;
+    }
+    registros.push({
+      nome,
+      categoria,
+      unidade_medida: unidadeMedida,
+      valor,
+      fabricante: fabricante || null,
+    });
+  });
+
+  if (erros.length > 0) {
+    const restantes = erros.length > 10 ? ` E mais ${erros.length - 10} erro(s).` : "";
+    return { erro: `${erros.slice(0, 10).join(" ")}${restantes} Nenhum produto foi importado.` };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("produtos").insert(registros);
+  if (error) {
+    console.error("Falha ao importar produtos no Supabase:", { code: error.code, message: error.message });
+    if (error.code === "42P01" || error.code === "PGRST205") {
+      return { erro: "A tabela de produtos não está configurada. Execute supabase/produtos.sql no SQL Editor do Supabase." };
+    }
+    if (error.code === "42501") {
+      return { erro: "O Supabase não permitiu importar. Verifique as permissões da migração supabase/produtos.sql." };
+    }
+    return { erro: "Não foi possível importar os produtos. Nenhum produto foi cadastrado; verifique a planilha e tente novamente." };
+  }
+
+  revalidatePath("/produtos");
+  return { mensagem: `${registros.length} produto(s) importado(s) com sucesso.` };
+}
+
 export async function excluirProduto(formData: FormData) {
   const perfil = await getPerfil();
   if (perfil.perfil !== "admin") redirect("/produtos?erro=permissao");

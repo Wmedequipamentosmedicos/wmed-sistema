@@ -51,7 +51,10 @@ export default async function ProdutosPage({
     <>
       <div className="topo">
         <h1>Produtos</h1>
-        <Link className="btn" href="/produtos/novo">+ Adicionar produto</Link>
+        <div className="acoes-topo">
+          <Link className="btn sec" href="/produtos/importar">Importar planilha</Link>
+          <Link className="btn" href="/produtos/novo">+ Adicionar produto</Link>
+        </div>
       </div>
 
       <Aviso codigo={sp.ok ?? sp.erro} />

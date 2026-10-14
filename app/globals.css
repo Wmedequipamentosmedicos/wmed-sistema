@@ -191,6 +191,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--p); outline
 .produto-miniatura { display: block; width: 56px; height: 56px; object-fit: cover; border-radius: 6px; }
 .produto-imagem-atual { display: grid; justify-items: start; gap: 6px; font-weight: 700; font-size: 14px; }
 .produto-imagem-atual img { width: 140px; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+.acoes-topo { display: flex; gap: 8px; flex-wrap: wrap; }
+.importacao-arquivo { margin-top: 18px; }
+.form-card h3 { margin: 24px 0 8px; color: var(--p); }
 
 /* Avisos */
 .aviso { padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-weight: 700; }

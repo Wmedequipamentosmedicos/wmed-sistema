@@ -5,7 +5,7 @@ Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 - **Login** com e-mail e senha (somente quem for cadastrado entra).
 - **Usuários** (somente administrador): criar usuário, escolher o perfil, desativar e reativar.
 - **Empresas e clientes**: lista com busca e paginação, cadastro com abas (Endereço, Contato, Observações), editar e excluir.
-- **Produtos**: cadastro, busca, código interno sequencial e fotos privadas no Supabase Storage.
+- **Produtos**: cadastro, busca, importação em lote de planilhas Excel (.xlsx), código interno sequencial e fotos privadas no Supabase Storage.
 - **Equipamentos**: lista com busca e paginação, cadastro com todos os campos do Archimedes, abas (Informações adicionais, extras, contrato e observações), editar e excluir.
 - **Orçamentos**: fluxo completo com solicitante, itens, condições, gravação no Supabase e geração de PDF com logo e dados da empresa.
 
