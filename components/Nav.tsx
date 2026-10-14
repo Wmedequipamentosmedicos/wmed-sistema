@@ -7,6 +7,7 @@ const ITENS = [
   { href: "/", nome: "Painel", exato: true },
   { href: "/equipamentos", nome: "Equipamentos" },
   { href: "/empresas", nome: "Empresas e clientes" },
+  { href: "/orcamentos", nome: "Orçamentos" },
 ];
 
 export default function Nav({ admin }: { admin: boolean }) {
