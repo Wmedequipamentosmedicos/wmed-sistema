@@ -1,8 +1,14 @@
-"use client";
-
 import Link from "next/link";
 
-export default function OrcamentoForm() {
+type Empresa = { id: number; nome: string; nome_fantasia: string | null };
+
+export default function OrcamentoForm({
+  empresas,
+  erro,
+}: {
+  empresas: Empresa[];
+  erro?: string;
+}) {
   return (
     <div className="form-card orcamento-card">
       <div className="orcamento-header">
@@ -13,9 +19,23 @@ export default function OrcamentoForm() {
       </div>
 
       <div className="orcamento-panel">
+        {erro && (
+          <div className="aviso erro" role="alert">
+            Não foi possível carregar as empresas e clientes cadastrados.
+          </div>
+        )}
         <label className="campo">
           <span>Solicitante</span>
-          <input defaultValue="" placeholder="Buscar solicitante" />
+          <select name="solicitante_id" defaultValue="" required disabled={Boolean(erro)}>
+            <option value="" disabled>
+              {empresas.length ? "Selecione uma empresa ou cliente" : "Nenhuma empresa ou cliente cadastrado"}
+            </option>
+            {empresas.map((empresa) => (
+              <option key={empresa.id} value={empresa.id}>
+                {empresa.nome_fantasia ? `${empresa.nome} (${empresa.nome_fantasia})` : empresa.nome}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
 
