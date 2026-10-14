@@ -46,7 +46,17 @@ h2 { font-size: 24px; margin: 24px 0 10px; }
 }
 .side nav a:hover { background: rgba(255,255,255,.08); }
 .side nav a.on { background: var(--p); color: #fff; font-weight: 700; }
-.side .app-version { color: #8fa6ab; padding: 8px 12px; font-size: 12px; }
+.side .app-version { color: #8fa6ab; font-size: 12px; }
+.side .app-version summary { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; cursor: pointer; list-style: none; }
+.side .app-version summary::-webkit-details-marker { display: none; }
+.side .app-version summary:hover { color: #fff; }
+.side .app-version[open] summary { color: #fff; }
+.side .version-hint { color: #cfdcdf; }
+.side .version-notes { margin: 0 8px 8px; padding: 10px; border-left: 2px solid var(--p); background: rgba(255,255,255,.06); color: #cfdcdf; }
+.side .version-notes section + section { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.15); }
+.side .version-notes b { color: #fff; }
+.side .version-notes ul { margin: 5px 0 0; padding-left: 16px; }
+.side .version-notes li + li { margin-top: 4px; }
 .side .user { margin-top: auto; padding: 12px; border-top: 1px solid rgba(255,255,255,.15); font-size: 14px; }
 .side .user small { display: block; color: #8fa6ab; }
 .side .user button { margin-top: 8px; }

@@ -1,4 +1,4 @@
-# Sistema WMED · Módulo OS (versão 0.1)
+# Sistema WMED · Módulo OS (versão 0.1.1)
 
 Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 

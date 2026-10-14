@@ -30,7 +30,28 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       <aside className="side">
         <img className="logo" src="/logo-branco.png" alt="Wmed®" />
         <Nav admin={p.perfil === "admin"} />
-        <small className="app-version">Versão {packageJson.version}</small>
+        <details className="app-version">
+          <summary>
+            <span>Versão {packageJson.version}</span>
+            <span className="version-hint">Novidades</span>
+          </summary>
+          <div className="version-notes">
+            <section>
+              <b>Versão 0.1.1</b>
+              <ul>
+                <li>Novidades do sistema disponíveis ao clicar na versão.</li>
+                <li>Número da versão atualizado automaticamente pelo projeto.</li>
+              </ul>
+            </section>
+            <section>
+              <b>Versão 0.1.0</b>
+              <ul>
+                <li>Login e administração de usuários.</li>
+                <li>Cadastro e consulta de empresas e equipamentos.</li>
+              </ul>
+            </section>
+          </div>
+        </details>
         <div className="user">
           {p.nome}
           <small>{nomePerfil}</small>
