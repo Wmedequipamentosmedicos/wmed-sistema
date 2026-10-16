@@ -35,7 +35,7 @@ export default async function OrcamentosPage({
   const supabase = await createClient();
   const { data, count, error } = await supabase
     .from("orcamentos")
-    .select("id, tipo, criado_em, total, status, solicitante_snapshot", { count: "exact" })
+    .select("id, tipo, criado_em, total, status, solicitante_snapshot, criado_por", { count: "exact" })
     .order("criado_em", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
@@ -78,8 +78,9 @@ export default async function OrcamentosPage({
                 <th>Data</th>
                 <th>Valor</th>
                 <th>Status</th>
+                <th>Prévia</th>
                 <th>PDF</th>
-                {perfil.perfil === "admin" && <th>Ações</th>}
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -92,16 +93,24 @@ export default async function OrcamentosPage({
                     <td>{new Date(item.criado_em).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</td>
                     <td>{moeda(item.total)}</td>
                     <td><span className="tag ok">Finalizado</span></td>
-                    <td><Link className="btn mini" href={`/orcamentos/${item.id}/pdf`}>Baixar PDF</Link></td>
-                    {perfil.perfil === "admin" && (
-                      <td className="acoes">
+                    <td>
+                      <Link className="btn mini" href={`/orcamentos/${item.id}`}>
+                        Visualizar
+                      </Link>
+                    </td>
+                    <td><Link className="btn mini" href={`/orcamentos/${item.id}/pdf?download=1`}>Baixar PDF</Link></td>
+                    <td className="acoes">
+                      {perfil.ativo && (perfil.perfil === "admin" || item.criado_por === perfil.user.id) && (
+                        <Link className="btn mini sec" href={`/orcamentos/${item.id}/editar`}>Editar</Link>
+                      )}
+                      {perfil.ativo && perfil.perfil === "admin" && (
                         <DeleteButton
                           action={excluirOrcamento}
                           id={item.id}
                           nome={`orçamento ${String(item.id).padStart(6, "0")}`}
                         />
-                      </td>
-                    )}
+                      )}
+                    </td>
                   </tr>
                 );
               })}

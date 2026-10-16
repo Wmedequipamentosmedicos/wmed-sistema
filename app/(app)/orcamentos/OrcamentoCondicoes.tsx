@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { finalizarOrcamento } from "./actions";
 import type { TipoOrcamento } from "./types";
 
 function moeda(valor: number) {
@@ -14,18 +13,24 @@ function valorNumerico(valor: string) {
 }
 
 export default function OrcamentoCondicoes({
+  action,
+  botaoTexto,
   empresaId,
   tipoOrcamento,
   itens,
   totalProdutos,
   totalServicos,
   valoresIniciais,
+  orcamentoId,
 }: {
+  action: (formData: FormData) => void | Promise<void>;
+  botaoTexto: string;
   empresaId: number;
   tipoOrcamento: TipoOrcamento;
   itens: Array<{ tipo: "produto" | "servico"; id: number; quantidade: number }>;
   totalProdutos: number;
   totalServicos: number;
+  orcamentoId?: number;
   valoresIniciais: {
     formaPagamento: string;
     descontoPercentual: string;
@@ -70,8 +75,9 @@ export default function OrcamentoCondicoes({
   const totalFinal = totalComDescontos + valorNumerico(frete);
 
   return (
-    <form action={finalizarOrcamento} id="orcamento-panel-condicoes" className="orcamento-panel" role="tabpanel" aria-labelledby="orcamento-tab-condicoes">
+    <form action={action} id="orcamento-panel-condicoes" className="orcamento-panel" role="tabpanel" aria-labelledby="orcamento-tab-condicoes">
       <h2 className="orcamento-itens-titulo">Condições do orçamento</h2>
+      {orcamentoId && <input type="hidden" name="orcamento_id" value={orcamentoId} />}
       <input type="hidden" name="empresa_id" value={empresaId} />
       <input type="hidden" name="tipo_orcamento" value={tipoOrcamento} />
       <input type="hidden" name="itens" value={JSON.stringify(itens)} />
@@ -148,7 +154,7 @@ export default function OrcamentoCondicoes({
         <p className="orcamento-total-final">Total do orçamento: <strong>{moeda(totalFinal)}</strong></p>
       </section>
       <div className="orcamento-acoes-itens">
-        <button className="btn" type="submit">Finalizar orçamento e baixar PDF</button>
+        <button className="btn" type="submit">{botaoTexto}</button>
       </div>
     </form>
   );

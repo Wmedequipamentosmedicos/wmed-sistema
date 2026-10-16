@@ -238,3 +238,182 @@ end;
 $$;
 
 grant execute on function public.finalizar_orcamento(bigint, uuid, text, jsonb, text, numeric, numeric, numeric, text, text, text) to authenticated;
+
+create or replace function public.editar_orcamento(
+  p_orcamento_id bigint,
+  p_empresa_id bigint,
+  p_criado_por uuid,
+  p_tipo text,
+  p_itens jsonb,
+  p_forma_pagamento text,
+  p_desconto_percentual numeric,
+  p_desconto_valor numeric,
+  p_frete numeric,
+  p_prazo_entrega text,
+  p_informacoes_adicionais text,
+  p_responsavel text
+)
+returns bigint
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_criado_por uuid;
+  v_item jsonb;
+  v_id bigint;
+  v_quantidade numeric(12, 3);
+  v_produtos numeric(12, 2) := 0;
+  v_servicos numeric(12, 2) := 0;
+  v_subtotal numeric(12, 2);
+  v_desconto_percentual numeric(12, 2);
+  v_desconto_valor numeric(12, 2);
+  v_qtd_produtos integer := 0;
+  v_qtd_servicos integer := 0;
+  v_descricao text;
+  v_unidade text;
+  v_valor numeric(12, 2);
+  v_emissor jsonb;
+  v_solicitante jsonb;
+  v_itens_snapshot jsonb := '[]'::jsonb;
+begin
+  if not public.usuario_ativo() or auth.uid() is distinct from p_criado_por then
+    raise exception 'Usuário sem permissão para editar orçamento' using errcode = '42501';
+  end if;
+
+  select criado_por into v_criado_por
+    from public.orcamentos where id = p_orcamento_id for update;
+  if not found then raise exception 'Orçamento inválido' using errcode = '22023'; end if;
+  if v_criado_por is distinct from auth.uid() and not public.usuario_admin() then
+    raise exception 'Usuário sem permissão para editar orçamento' using errcode = '42501';
+  end if;
+  if not exists (select 1 from public.empresas where id = p_empresa_id) then
+    raise exception 'Solicitante inválido' using errcode = '22023';
+  end if;
+  select to_jsonb(c) into v_emissor from public.configuracoes_empresa c where id = true;
+  if not found
+    or nullif(v_emissor->>'razao_social', '') is null
+    or nullif(v_emissor->>'cnpj', '') is null
+    or nullif(v_emissor->>'rua', '') is null
+    or nullif(v_emissor->>'cidade', '') is null
+    or nullif(v_emissor->>'telefone', '') is null
+    or nullif(v_emissor->>'email', '') is null then
+    raise exception 'Configure os dados da empresa emissora antes de editar o orçamento' using errcode = '55000';
+  end if;
+  select to_jsonb(e) into v_solicitante from public.empresas e where id = p_empresa_id;
+  if p_tipo not in ('produtos', 'servicos', 'produtos-servicos')
+    or (p_forma_pagamento is not null and p_forma_pagamento not in ('avista', 'pix', 'boleto', 'transferencia', 'cartao', 'faturado', 'outro'))
+    or jsonb_typeof(p_itens) <> 'array'
+    or jsonb_array_length(p_itens) = 0
+    or p_desconto_percentual < 0 or p_desconto_percentual > 100
+    or p_desconto_valor < 0 or p_frete < 0 then
+    raise exception 'Dados do orçamento inválidos' using errcode = '22023';
+  end if;
+  if exists (
+    select 1
+    from jsonb_array_elements(p_itens) as entrada(item)
+    group by item->>'tipo', item->>'id'
+    having count(*) > 1
+  ) then
+    raise exception 'Não é permitido repetir produtos ou serviços no orçamento' using errcode = '22023';
+  end if;
+
+  for v_item in select value from jsonb_array_elements(p_itens)
+  loop
+    v_id := (v_item->>'id')::bigint;
+    v_quantidade := (v_item->>'quantidade')::numeric;
+    if v_quantidade is null or v_quantidade <= 0 then
+      raise exception 'Quantidade inválida' using errcode = '22023';
+    end if;
+
+    if v_item->>'tipo' = 'produto' and p_tipo in ('produtos', 'produtos-servicos') then
+      select descricao, unidade_medida, valor_unitario
+        into v_descricao, v_unidade, v_valor
+        from public.orcamento_itens
+        where orcamento_id = p_orcamento_id and tipo_item = 'produto' and produto_id = v_id;
+      if not found then
+        select nome, unidade_medida, valor into v_descricao, v_unidade, v_valor
+          from public.produtos where id = v_id for share;
+        if not found then raise exception 'Produto inválido' using errcode = '22023'; end if;
+      end if;
+      v_produtos := v_produtos + round(v_valor * v_quantidade, 2);
+      v_qtd_produtos := v_qtd_produtos + 1;
+    elsif v_item->>'tipo' = 'servico' and p_tipo in ('servicos', 'produtos-servicos') then
+      select descricao, unidade_medida, valor_unitario
+        into v_descricao, v_unidade, v_valor
+        from public.orcamento_itens
+        where orcamento_id = p_orcamento_id and tipo_item = 'servico' and servico_id = v_id;
+      if not found then
+        select nome, null::text, valor into v_descricao, v_unidade, v_valor
+          from public.servicos where id = v_id for share;
+        if not found then raise exception 'Serviço inválido' using errcode = '22023'; end if;
+      end if;
+      v_servicos := v_servicos + round(v_valor * v_quantidade, 2);
+      v_qtd_servicos := v_qtd_servicos + 1;
+    else
+      raise exception 'Tipo de item incompatível com o orçamento' using errcode = '22023';
+    end if;
+    v_itens_snapshot := v_itens_snapshot || jsonb_build_array(jsonb_build_object(
+      'tipo', v_item->>'tipo',
+      'id', v_id,
+      'quantidade', v_quantidade,
+      'descricao', v_descricao,
+      'unidade_medida', v_unidade,
+      'valor_unitario', v_valor
+    ));
+  end loop;
+
+  if v_qtd_produtos + v_qtd_servicos = 0 then
+    raise exception 'Inclua ao menos um produto ou serviço válido' using errcode = '22023';
+  end if;
+
+  v_subtotal := v_produtos + v_servicos;
+  v_desconto_percentual := round(v_subtotal * p_desconto_percentual / 100, 2);
+  v_desconto_valor := least(p_desconto_valor, greatest(0, v_subtotal - v_desconto_percentual));
+
+  update public.orcamentos set
+    empresa_id = p_empresa_id,
+    emissor_snapshot = v_emissor,
+    solicitante_snapshot = v_solicitante,
+    tipo = p_tipo,
+    forma_pagamento = p_forma_pagamento,
+    desconto_percentual = p_desconto_percentual,
+    desconto_valor = v_desconto_valor,
+    frete = p_frete,
+    prazo_entrega = nullif(p_prazo_entrega, ''),
+    informacoes_adicionais = nullif(p_informacoes_adicionais, ''),
+    responsavel = nullif(p_responsavel, ''),
+    subtotal_produtos = v_produtos,
+    subtotal_servicos = v_servicos,
+    subtotal = v_subtotal,
+    total = greatest(0, v_subtotal - v_desconto_percentual - v_desconto_valor) + p_frete
+  where id = p_orcamento_id;
+
+  delete from public.orcamento_itens where orcamento_id = p_orcamento_id;
+  for v_item in select value from jsonb_array_elements(v_itens_snapshot)
+  loop
+    v_id := (v_item->>'id')::bigint;
+    v_quantidade := (v_item->>'quantidade')::numeric;
+    v_descricao := v_item->>'descricao';
+    v_unidade := v_item->>'unidade_medida';
+    v_valor := (v_item->>'valor_unitario')::numeric;
+    if v_item->>'tipo' = 'produto' then
+      insert into public.orcamento_itens (
+        orcamento_id, tipo_item, produto_id, descricao, unidade_medida, quantidade, valor_unitario, subtotal
+      ) values (
+        p_orcamento_id, 'produto', v_id, v_descricao, v_unidade, v_quantidade, v_valor, round(v_valor * v_quantidade, 2)
+      );
+    else
+      insert into public.orcamento_itens (
+        orcamento_id, tipo_item, servico_id, descricao, quantidade, valor_unitario, subtotal
+      ) values (
+        p_orcamento_id, 'servico', v_id, v_descricao, v_quantidade, v_valor, round(v_valor * v_quantidade, 2)
+      );
+    end if;
+  end loop;
+
+  return p_orcamento_id;
+end;
+$$;
+
+grant execute on function public.editar_orcamento(bigint, bigint, uuid, text, jsonb, text, numeric, numeric, numeric, text, text, text) to authenticated;

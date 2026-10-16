@@ -6,12 +6,22 @@ import SearchDialog from "@/components/SearchDialog";
 import OrcamentoCondicoes from "./OrcamentoCondicoes";
 import OrcamentoItens from "./OrcamentoItens";
 import VoiceOrcamento, { type DadosOrcamentoVoz } from "./VoiceOrcamento";
+import { finalizarOrcamento } from "./actions";
 
 type Empresa = { id: number; nome: string; nome_fantasia: string | null };
 type TipoOrcamento = "produtos" | "servicos" | "produtos-servicos";
 type Produto = { id: number; codigo_interno: number; nome: string; unidade_medida: string; valor: number };
 type Servico = { id: number; nome: string; valor: number };
-type LinhaSalva = { tipo: "produto" | "servico"; id: number; quantidade: number };
+type LinhaSalva = { tipo: "produto" | "servico"; id: number; quantidade: number; valorUnitario?: number };
+type ValoresIniciais = {
+  formaPagamento: string;
+  descontoPercentual: string;
+  descontoValor: string;
+  prazoEntrega: string;
+  frete: string;
+  responsavel: string;
+  informacoesAdicionais: string;
+};
 
 export default function OrcamentoForm({
   empresas,
@@ -21,6 +31,8 @@ export default function OrcamentoForm({
   erroProdutos,
   erroServicos,
   erroFinalizacao,
+  inicial,
+  acao = finalizarOrcamento,
 }: {
   empresas: Empresa[];
   produtos: Produto[];
@@ -29,26 +41,33 @@ export default function OrcamentoForm({
   erroProdutos?: string;
   erroServicos?: string;
   erroFinalizacao?: string;
+  inicial?: {
+    id: number;
+    empresaId: number;
+    tipo: TipoOrcamento;
+    itens: LinhaSalva[];
+    condicoes: ValoresIniciais;
+  };
+  acao?: (formData: FormData) => void | Promise<void>;
 }) {
-  const [etapa, setEtapa] = useState(0);
-  const [solicitanteId, setSolicitanteId] = useState("");
-  const [tipoOrcamento, setTipoOrcamento] = useState<TipoOrcamento | "">("");
+  const [etapa, setEtapa] = useState(inicial ? 2 : 0);
+  const [solicitanteId, setSolicitanteId] = useState(inicial ? String(inicial.empresaId) : "");
+  const [tipoOrcamento, setTipoOrcamento] = useState<TipoOrcamento | "">(inicial?.tipo ?? "");
   const [itensConfirmados, setItensConfirmados] = useState(false);
   const [totalProdutos, setTotalProdutos] = useState(0);
   const [totalServicos, setTotalServicos] = useState(0);
-  const [itens, setItens] = useState<LinhaSalva[]>([]);
+  const [itens, setItens] = useState<LinhaSalva[]>(inicial?.itens ?? []);
   const [mostrarAssistente, setMostrarAssistente] = useState(false);
   const [mensagemVoz, setMensagemVoz] = useState("");
-  const [itensVoz, setItensVoz] = useState<LinhaSalva[]>([]);
-  const [condicoesVoz, setCondicoesVoz] = useState({
-    formaPagamento: "",
-    condicaoPagamento: "",
-    descontoPercentual: "",
-    descontoValor: "",
-    prazoEntrega: "",
-    frete: "",
-    responsavel: "",
-    informacoesAdicionais: "",
+  const [itensVoz, setItensVoz] = useState<LinhaSalva[]>(inicial?.itens ?? []);
+  const [condicoesVoz, setCondicoesVoz] = useState<ValoresIniciais>({
+    formaPagamento: inicial?.condicoes.formaPagamento ?? "",
+    descontoPercentual: inicial?.condicoes.descontoPercentual ?? "",
+    descontoValor: inicial?.condicoes.descontoValor ?? "",
+    prazoEntrega: inicial?.condicoes.prazoEntrega ?? "",
+    frete: inicial?.condicoes.frete ?? "",
+    responsavel: inicial?.condicoes.responsavel ?? "",
+    informacoesAdicionais: inicial?.condicoes.informacoesAdicionais ?? "",
   });
   const solicitante = empresas.find((empresa) => String(empresa.id) === solicitanteId);
 
@@ -57,12 +76,17 @@ export default function OrcamentoForm({
       <div className="orcamento-header">
         <div className="orcamento-brand">
           <span className="marca-ponto">W</span>
-          <span>Novo orçamento</span>
+          <span>{inicial ? `Editar orçamento ${String(inicial.id).padStart(6, "0")}` : "Novo orçamento"}</span>
         </div>
         <button className="btn voz-btn" type="button" onClick={() => setMostrarAssistente((aberto) => !aberto)}>
           🎙️ Criar por voz
         </button>
       </div>
+      {inicial && (
+        <p className="orcamento-preco-ajuda">
+          Os preços dos itens já salvos serão mantidos. Itens adicionados agora usarão o preço atual do catálogo.
+        </p>
+      )}
 
       {erroFinalizacao && <div className="aviso erro" role="alert">{erroFinalizacao}</div>}
       {mensagemVoz && <div className="aviso" role="status">{mensagemVoz}</div>}
@@ -76,10 +100,12 @@ export default function OrcamentoForm({
             setMensagemVoz("Dados de voz aplicados. Confira cliente e itens; os campos opcionais não informados ficarão vazios. Revise tudo antes de finalizar.");
             setSolicitanteId(dados.empresaId === null ? "" : String(dados.empresaId));
             setTipoOrcamento(dados.tipoOrcamento);
-            setItensVoz(dados.itens);
+            setItensVoz(dados.itens.map((item) => {
+              const existente = inicial?.itens.find((linha) => linha.tipo === item.tipo && linha.id === item.id);
+              return existente ? { ...item, valorUnitario: existente.valorUnitario } : item;
+            }));
             setCondicoesVoz({
               formaPagamento: dados.formaPagamento,
-              condicaoPagamento: dados.condicaoPagamento,
               descontoPercentual: dados.descontoPercentual,
               descontoValor: dados.descontoValor,
               prazoEntrega: dados.prazoEntrega,
@@ -229,12 +255,15 @@ export default function OrcamentoForm({
             </div>
             <div hidden={etapa !== 3}>
               <OrcamentoCondicoes
+                action={acao}
+                botaoTexto={inicial ? "Salvar alterações e visualizar orçamento" : "Finalizar e visualizar orçamento"}
                 empresaId={Number(solicitanteId)}
                 tipoOrcamento={tipoOrcamento}
                 itens={itens}
                 totalProdutos={totalProdutos}
                 totalServicos={totalServicos}
                 valoresIniciais={condicoesVoz}
+                orcamentoId={inicial?.id}
               />
             </div>
           </>

@@ -73,6 +73,9 @@ h2 { font-size: 24px; margin: 24px 0 10px; }
 }
 .status-pill.on { background: var(--p); color: #fff; border-color: var(--p); }
 .orcamento-tabela .barra { padding-top: 0; }
+.orcamento-preview-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.orcamento-preview-frame { display: block; width: 100%; height: calc(100vh - 210px); min-height: 600px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.orcamento-preco-ajuda { margin: 14px 24px 0; color: #52666a; font-size: 14px; }
 .busca-input { width: min(420px, 100%); }
 .ok-btn { background: var(--ok); }
 .ok-btn:hover { background: #235d45; }
@@ -111,7 +114,7 @@ h2 { font-size: 24px; margin: 24px 0 10px; }
 .orcamento-secao-itens { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; }
 .orcamento-secao-itens h3 { font-size: 22px; }
 .orcamento-item-linha { display: grid; grid-template-columns: minmax(0, 2fr) minmax(130px, 1fr) auto auto; align-items: end; gap: 12px; }
-.orcamento-item-subtotal { padding-bottom: 10px; font-weight: 700; white-space: nowrap; }
+.orcamento-item-subtotal { padding-bottom: 10px; font-weight: 700; }
 .busca-selecao-trigger { width: 100%; justify-content: space-between; text-align: left; min-height: 42px; }
 .busca-dialog-backdrop {
   position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px;
@@ -258,4 +261,3 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--p); outline
   .content { padding: 16px; }
   .grid2 { grid-template-columns: 1fr; }
 }
-

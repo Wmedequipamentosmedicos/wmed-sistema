@@ -77,7 +77,7 @@ function quebrarTexto(texto: string, fonte: PDFFont, tamanho: number, largura: n
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   await getPerfil();
@@ -290,10 +290,11 @@ export async function GET(
   }
 
   const bytes = await pdf.save();
+  const disposicao = new URL(request.url).searchParams.get("download") === "1" ? "attachment" : "inline";
   return new Response(new Uint8Array(bytes), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="orcamento-${String(orcamento.id).padStart(6, "0")}.pdf"`,
+      "Content-Disposition": `${disposicao}; filename="orcamento-${String(orcamento.id).padStart(6, "0")}.pdf"`,
       "Cache-Control": "private, no-store",
     },
   });

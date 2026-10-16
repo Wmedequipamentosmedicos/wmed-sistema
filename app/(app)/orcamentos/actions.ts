@@ -15,9 +15,9 @@ function falhaBanco(codigo: string | undefined) {
   return "orcamento_salvar";
 }
 
-export async function finalizarOrcamento(formData: FormData): Promise<never> {
+async function salvarOrcamento(formData: FormData, orcamentoId?: number): Promise<never> {
   const perfil = await getPerfil();
-  const voltar = "/orcamentos/novo";
+  const voltar = orcamentoId ? `/orcamentos/${orcamentoId}/editar` : "/orcamentos/novo";
   const empresaId = num(formData, "empresa_id");
   const tipo = txt(formData, "tipo_orcamento");
   const formaPagamento = txt(formData, "forma_pagamento");
@@ -70,7 +70,7 @@ export async function finalizarOrcamento(formData: FormData): Promise<never> {
   if (itensUnicos.size !== itens.length) redirect(`${voltar}?erro=orcamento_campos`);
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("finalizar_orcamento", {
+  const dados = {
     p_empresa_id: empresaId,
     p_criado_por: perfil.user.id,
     p_tipo: tipoOrcamento,
@@ -82,15 +82,33 @@ export async function finalizarOrcamento(formData: FormData): Promise<never> {
     p_prazo_entrega: txt(formData, "prazo_entrega"),
     p_informacoes_adicionais: txt(formData, "informacoes_adicionais"),
     p_responsavel: txt(formData, "responsavel"),
-  });
+  };
+  const { data, error } = orcamentoId
+    ? await supabase.rpc("editar_orcamento", { p_orcamento_id: orcamentoId, ...dados })
+    : await supabase.rpc("finalizar_orcamento", dados);
 
   if (error || typeof data !== "number") {
-    console.error("Falha ao finalizar orçamento:", { code: error?.code, message: error?.message });
+    console.error(orcamentoId ? "Falha ao editar orçamento:" : "Falha ao finalizar orçamento:", {
+      code: error?.code,
+      message: error?.message,
+    });
     redirect(`${voltar}?erro=${falhaBanco(error?.code)}`);
   }
 
   revalidatePath("/orcamentos");
-  redirect(`/orcamentos/${data}/pdf`);
+  revalidatePath(`/orcamentos/${data}/editar`);
+  revalidatePath(`/orcamentos/${data}`);
+  redirect(`/orcamentos/${data}`);
+}
+
+export async function finalizarOrcamento(formData: FormData): Promise<never> {
+  return salvarOrcamento(formData);
+}
+
+export async function editarOrcamento(formData: FormData): Promise<never> {
+  const id = num(formData, "orcamento_id");
+  if (id === null || id <= 0) redirect("/orcamentos?erro=orcamento_editar");
+  return salvarOrcamento(formData, id);
 }
 
 export async function excluirOrcamento(formData: FormData): Promise<never> {

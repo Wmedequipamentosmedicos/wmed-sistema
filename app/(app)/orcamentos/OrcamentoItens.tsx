@@ -10,8 +10,8 @@ import {
 } from "./catalog-actions";
 
 type TipoOrcamento = "produtos" | "servicos" | "produtos-servicos";
-type Linha = { chave: string; itemId: string; quantidade: string };
-type LinhaSalva = { tipo: "produto" | "servico"; id: number; quantidade: number };
+type Linha = { chave: string; itemId: string; quantidade: string; valorUnitario?: number };
+type LinhaSalva = { tipo: "produto" | "servico"; id: number; quantidade: number; valorUnitario?: number };
 
 function novaLinha(): Linha {
   return { chave: crypto.randomUUID(), itemId: "", quantidade: "1" };
@@ -48,10 +48,20 @@ export default function OrcamentoItens({
     if (!itensIniciais.length) return;
     setLinhasProdutos(itensIniciais
       .filter((item) => item.tipo === "produto")
-      .map((item) => ({ chave: crypto.randomUUID(), itemId: String(item.id), quantidade: String(item.quantidade) })));
+      .map((item) => ({
+        chave: crypto.randomUUID(),
+        itemId: String(item.id),
+        quantidade: String(item.quantidade),
+        valorUnitario: item.valorUnitario,
+      })));
     setLinhasServicos(itensIniciais
       .filter((item) => item.tipo === "servico")
-      .map((item) => ({ chave: crypto.randomUUID(), itemId: String(item.id), quantidade: String(item.quantidade) })));
+      .map((item) => ({
+        chave: crypto.randomUUID(),
+        itemId: String(item.id),
+        quantidade: String(item.quantidade),
+        valorUnitario: item.valorUnitario,
+      })));
   }, [itensIniciais]);
 
   const incluiProdutos = tipo !== "servicos";
@@ -72,7 +82,8 @@ export default function OrcamentoItens({
       return;
     }
     setErro("");
-    atualizarLinha(linhasProdutos, setLinhasProdutos, chave, { itemId: String(id) });
+    const valorUnitario = itensIniciais.find((item) => item.tipo === "produto" && item.id === id)?.valorUnitario;
+    atualizarLinha(linhasProdutos, setLinhasProdutos, chave, { itemId: String(id), valorUnitario });
   }
 
   function selecionarServico(chave: string, id: number) {
@@ -81,14 +92,16 @@ export default function OrcamentoItens({
       return;
     }
     setErro("");
-    atualizarLinha(linhasServicos, setLinhasServicos, chave, { itemId: String(id) });
+    const valorUnitario = itensIniciais.find((item) => item.tipo === "servico" && item.id === id)?.valorUnitario;
+    atualizarLinha(linhasServicos, setLinhasServicos, chave, { itemId: String(id), valorUnitario });
   }
 
   function total(linhas: Linha[], itens: Array<{ id: number; valor: number }>) {
     return linhas.reduce((soma, linha) => {
       const item = itens.find((opcao) => String(opcao.id) === linha.itemId);
       const quantidade = Number(linha.quantidade);
-      return soma + (item && Number.isFinite(quantidade) ? item.valor * quantidade : 0);
+      const valor = linha.valorUnitario ?? item?.valor;
+      return valor !== undefined && Number.isFinite(quantidade) ? valor * quantidade : soma;
     }, 0);
   }
 
@@ -98,14 +111,14 @@ export default function OrcamentoItens({
         const id = Number(linha.itemId);
         const quantidade = Number(linha.quantidade);
         return linha.itemId && Number.isSafeInteger(id) && id > 0 && Number.isFinite(quantidade) && quantidade > 0
-          ? [{ tipo: "produto" as const, id, quantidade }]
+          ? [{ tipo: "produto" as const, id, quantidade, valorUnitario: linha.valorUnitario }]
           : [];
       }) : []),
       ...(incluiServicos ? linhasServicos.flatMap((linha) => {
         const id = Number(linha.itemId);
         const quantidade = Number(linha.quantidade);
         return linha.itemId && Number.isSafeInteger(id) && id > 0 && Number.isFinite(quantidade) && quantidade > 0
-          ? [{ tipo: "servico" as const, id, quantidade }]
+          ? [{ tipo: "servico" as const, id, quantidade, valorUnitario: linha.valorUnitario }]
           : [];
       }) : []),
     ];
@@ -176,6 +189,7 @@ export default function OrcamentoItens({
           )}
           {linhasProdutos.map((linha, indice) => {
             const produto = produtos.find((opcao) => String(opcao.id) === linha.itemId);
+            const valorUnitario = linha.valorUnitario ?? Number(produto?.valor ?? 0);
             return (
               <div className="orcamento-item-linha" key={linha.chave}>
                 <div className="campo">
@@ -206,7 +220,11 @@ export default function OrcamentoItens({
                     onChange={(event) => atualizarLinha(linhasProdutos, setLinhasProdutos, linha.chave, { quantidade: event.target.value })}
                   />
                 </label>
-                {produto && <span className="orcamento-item-subtotal">Subtotal: {moeda(Number(produto.valor) * Number(linha.quantidade || 0))}</span>}
+                {produto && (
+                  <span className="orcamento-item-subtotal">
+                    Unitário: {moeda(valorUnitario)} · Subtotal: {moeda(valorUnitario * Number(linha.quantidade || 0))}
+                  </span>
+                )}
                 {linhasProdutos.length > 1 && (
                   <button className="btn sec" type="button" onClick={() => setLinhasProdutos(linhasProdutos.filter((item) => item.chave !== linha.chave))}>
                     Remover
@@ -246,6 +264,7 @@ export default function OrcamentoItens({
           )}
           {linhasServicos.map((linha, indice) => {
             const servico = servicos.find((opcao) => String(opcao.id) === linha.itemId);
+            const valorUnitario = linha.valorUnitario ?? Number(servico?.valor ?? 0);
             return (
               <div className="orcamento-item-linha" key={linha.chave}>
                 <div className="campo">
@@ -276,7 +295,11 @@ export default function OrcamentoItens({
                     onChange={(event) => atualizarLinha(linhasServicos, setLinhasServicos, linha.chave, { quantidade: event.target.value })}
                   />
                 </label>
-                {servico && <span className="orcamento-item-subtotal">Subtotal: {moeda(Number(servico.valor) * Number(linha.quantidade || 0))}</span>}
+                {servico && (
+                  <span className="orcamento-item-subtotal">
+                    Unitário: {moeda(valorUnitario)} · Subtotal: {moeda(valorUnitario * Number(linha.quantidade || 0))}
+                  </span>
+                )}
                 {linhasServicos.length > 1 && (
                   <button className="btn sec" type="button" onClick={() => setLinhasServicos(linhasServicos.filter((item) => item.chave !== linha.chave))}>
                     Remover

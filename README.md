@@ -7,7 +7,7 @@ Sistema interno da Wmed Equipamentos Hospitalares. Esta primeira versão tem:
 - **Empresas e clientes**: lista com busca e paginação, cadastro com abas (Endereço, Contato, Observações), importação em lote de planilhas Excel (.xlsx), editar e excluir.
 - **Produtos**: cadastro, busca, importação em lote de planilhas Excel (.xlsx), código interno sequencial e fotos privadas no Supabase Storage.
 - **Equipamentos**: lista com busca e paginação, cadastro com todos os campos do Archimedes, importação em lote de planilhas Excel (.xlsx), abas (Informações adicionais, extras, contrato e observações), editar e excluir.
-- **Orçamentos**: fluxo completo com busca de clientes, produtos e serviços, bloqueio de itens repetidos, condições, gravação no Supabase, geração de PDF com logo e dados da empresa e exclusão por administradores.
+- **Orçamentos**: fluxo completo com busca de clientes, produtos e serviços, bloqueio de itens repetidos, condições, gravação no Supabase, prévia e download de PDF, edição pelo criador ou administrador e exclusão por administradores.
 
 Ainda **não** tem: ordens de serviço, planos de manutenção, certificados, financeiro e documentos. Entram nas próximas etapas.
 
@@ -24,7 +24,7 @@ Tecnologia: Next.js (site) + Supabase (banco de dados e login) + Vercel (hospeda
 4. Abra o arquivo `supabase/schema.sql`, copie todo o conteúdo, cole no editor e clique em **Run**. Deve aparecer "Success".
 5. Se o sistema já estiver instalado, execute também `supabase/produtos.sql` no SQL Editor para criar a tabela, as permissões e o armazenamento privado de imagens.
 6. Execute `supabase/servicos.sql` no SQL Editor para criar o catálogo de serviços usado nos orçamentos.
-7. Execute `supabase/orcamentos.sql` no SQL Editor para habilitar a finalização dos orçamentos. Em instalações existentes, execute novamente para aplicar as regras atualizadas de bloqueio de itens repetidos.
+7. Execute `supabase/orcamentos.sql` no SQL Editor para habilitar a finalização, edição, prévia e geração de PDF dos orçamentos. Em instalações existentes, execute novamente ao publicar atualizações deste módulo para aplicar as funções e regras mais recentes.
 8. No sistema, acesse **Dados da empresa** no menu de Administração e preencha os dados legais e de contato da WMED que sairão no PDF.
 
 ### 2. Fechar o cadastro público
