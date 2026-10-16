@@ -177,7 +177,7 @@ create table if not exists public.orcamentos (
   emissor_snapshot jsonb not null,
   solicitante_snapshot jsonb not null,
   tipo text not null check (tipo in ('produtos', 'servicos', 'produtos-servicos')),
-  forma_pagamento text not null check (forma_pagamento in ('avista', 'pix', 'boleto', 'transferencia', 'cartao', 'faturado', 'outro')),
+  forma_pagamento text check (forma_pagamento is null or forma_pagamento in ('avista', 'pix', 'boleto', 'transferencia', 'cartao', 'faturado', 'outro')),
   desconto_percentual numeric(5, 2) not null default 0 check (desconto_percentual between 0 and 100),
   desconto_valor numeric(12, 2) not null default 0 check (desconto_valor >= 0),
   frete numeric(12, 2) not null default 0 check (frete >= 0),
@@ -363,7 +363,7 @@ begin
   end if;
   select to_jsonb(e) into v_solicitante from public.empresas e where id = p_empresa_id;
   if p_tipo not in ('produtos', 'servicos', 'produtos-servicos')
-    or p_forma_pagamento not in ('avista', 'pix', 'boleto', 'transferencia', 'cartao', 'faturado', 'outro')
+    or (p_forma_pagamento is not null and p_forma_pagamento not in ('avista', 'pix', 'boleto', 'transferencia', 'cartao', 'faturado', 'outro'))
     or jsonb_typeof(p_itens) <> 'array'
     or jsonb_array_length(p_itens) = 0
     or p_desconto_percentual < 0 or p_desconto_percentual > 100
@@ -404,9 +404,8 @@ begin
     end if;
   end loop;
 
-  if (p_tipo in ('produtos', 'produtos-servicos') and v_qtd_produtos = 0)
-    or (p_tipo in ('servicos', 'produtos-servicos') and v_qtd_servicos = 0) then
-    raise exception 'Inclua ao menos um item válido de cada tipo selecionado' using errcode = '22023';
+  if v_qtd_produtos + v_qtd_servicos = 0 then
+    raise exception 'Inclua ao menos um produto ou serviço válido' using errcode = '22023';
   end if;
 
   v_subtotal := v_produtos + v_servicos;

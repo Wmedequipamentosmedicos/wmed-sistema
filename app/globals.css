@@ -79,8 +79,18 @@ h2 { font-size: 24px; margin: 24px 0 10px; }
 .danger-btn { background: var(--bad); }
 .danger-btn:hover { background: #8f2d2d; }
 .orcamento-card { padding: 0; overflow: hidden; }
-.orcamento-header { background: linear-gradient(90deg, #1d96a6, #0d8aa0); color: #fff; padding: 18px 24px; }
+.orcamento-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: linear-gradient(90deg, #1d96a6, #0d8aa0); color: #fff; padding: 18px 24px; }
 .orcamento-brand { display: inline-flex; align-items: center; gap: 10px; font: 700 20px "Barlow Condensed", sans-serif; }
+.orcamento-header .voz-btn { background: #fff; color: var(--p-escuro); white-space: nowrap; }
+.orcamento-header .voz-btn:hover { background: #eaf2f4; }
+.orcamento-voz { display: grid; gap: 12px; margin: 18px 24px; padding: 18px; border: 1px solid var(--p); border-radius: 8px; background: #f5f8f9; }
+.orcamento-voz-cabecalho { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.orcamento-voz-cabecalho h2, .orcamento-voz-pergunta { margin: 0; }
+.orcamento-voz-cabecalho p { margin: 4px 0 0; color: #52666a; }
+.orcamento-voz-etapa { margin: 0; color: #52666a; font-size: 14px; font-weight: 700; }
+.orcamento-voz-pergunta { font-size: 18px; }
+.orcamento-voz-controles, .orcamento-voz-acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.orcamento-voz > small { color: #52666a; }
 .marca-ponto {
   width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
   background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
@@ -231,6 +241,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--p); outline
 .login-card .faixa { height: 6px; background: var(--p); border-radius: 3px; margin: -32px -32px 24px; border-radius: 10px 10px 0 0; }
 
 @media (max-width: 800px) {
+  .orcamento-header { align-items: flex-start; flex-direction: column; }
+  .orcamento-voz { margin: 14px; padding: 14px; }
+  .orcamento-voz-cabecalho { flex-direction: column; }
   .orcamento-tipo-opcoes { grid-template-columns: 1fr; }
   .orcamento-item-linha { grid-template-columns: 1fr 1fr; }
   .busca-dialog-backdrop { padding: 10px; }
@@ -245,3 +258,4 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--p); outline
   .content { padding: 16px; }
   .grid2 { grid-template-columns: 1fr; }
 }
+

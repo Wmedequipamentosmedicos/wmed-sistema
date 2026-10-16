@@ -5,6 +5,7 @@ import { useState } from "react";
 import SearchDialog from "@/components/SearchDialog";
 import OrcamentoCondicoes from "./OrcamentoCondicoes";
 import OrcamentoItens from "./OrcamentoItens";
+import VoiceOrcamento, { type DadosOrcamentoVoz } from "./VoiceOrcamento";
 
 type Empresa = { id: number; nome: string; nome_fantasia: string | null };
 type TipoOrcamento = "produtos" | "servicos" | "produtos-servicos";
@@ -36,6 +37,19 @@ export default function OrcamentoForm({
   const [totalProdutos, setTotalProdutos] = useState(0);
   const [totalServicos, setTotalServicos] = useState(0);
   const [itens, setItens] = useState<LinhaSalva[]>([]);
+  const [mostrarAssistente, setMostrarAssistente] = useState(false);
+  const [mensagemVoz, setMensagemVoz] = useState("");
+  const [itensVoz, setItensVoz] = useState<LinhaSalva[]>([]);
+  const [condicoesVoz, setCondicoesVoz] = useState({
+    formaPagamento: "",
+    condicaoPagamento: "",
+    descontoPercentual: "",
+    descontoValor: "",
+    prazoEntrega: "",
+    frete: "",
+    responsavel: "",
+    informacoesAdicionais: "",
+  });
   const solicitante = empresas.find((empresa) => String(empresa.id) === solicitanteId);
 
   return (
@@ -45,9 +59,40 @@ export default function OrcamentoForm({
           <span className="marca-ponto">W</span>
           <span>Novo orçamento</span>
         </div>
+        <button className="btn voz-btn" type="button" onClick={() => setMostrarAssistente((aberto) => !aberto)}>
+          🎙️ Criar por voz
+        </button>
       </div>
 
       {erroFinalizacao && <div className="aviso erro" role="alert">{erroFinalizacao}</div>}
+      {mensagemVoz && <div className="aviso" role="status">{mensagemVoz}</div>}
+      {mostrarAssistente && (
+        <VoiceOrcamento
+          empresas={empresas}
+          produtos={produtos}
+          servicos={servicos}
+          onCancel={() => setMostrarAssistente(false)}
+          onComplete={(dados: DadosOrcamentoVoz) => {
+            setMensagemVoz("Dados de voz aplicados. Confira cliente e itens; os campos opcionais não informados ficarão vazios. Revise tudo antes de finalizar.");
+            setSolicitanteId(dados.empresaId === null ? "" : String(dados.empresaId));
+            setTipoOrcamento(dados.tipoOrcamento);
+            setItensVoz(dados.itens);
+            setCondicoesVoz({
+              formaPagamento: dados.formaPagamento,
+              condicaoPagamento: dados.condicaoPagamento,
+              descontoPercentual: dados.descontoPercentual,
+              descontoValor: dados.descontoValor,
+              prazoEntrega: dados.prazoEntrega,
+              frete: dados.frete,
+              responsavel: dados.responsavel,
+              informacoesAdicionais: dados.informacoesAdicionais,
+            });
+            setItensConfirmados(false);
+            setEtapa(dados.empresaId === null ? 0 : dados.tipoOrcamento ? 2 : 1);
+            setMostrarAssistente(false);
+          }}
+        />
+      )}
 
       <div className="tabs-bar orcamento-tabs" role="tablist" aria-label="Etapas do orçamento">
         <button
@@ -126,7 +171,7 @@ export default function OrcamentoForm({
               selectedId={solicitante ? solicitante.id : null}
               onSelect={(empresa) => {
                 setSolicitanteId(String(empresa.id));
-                setEtapa(1);
+                setEtapa(tipoOrcamento ? 2 : 1);
               }}
             />
             {!solicitante && empresas.length > 0 && <small>Selecione o cliente para continuar.</small>}
@@ -170,6 +215,7 @@ export default function OrcamentoForm({
                 tipo={tipoOrcamento}
                 produtos={produtos}
                 servicos={servicos}
+                itensIniciais={itensVoz}
                 erroProdutos={erroProdutos}
                 erroServicos={erroServicos}
                 onContinue={(subtotalProdutos, subtotalServicos, itensSelecionados) => {
@@ -188,6 +234,7 @@ export default function OrcamentoForm({
                 itens={itens}
                 totalProdutos={totalProdutos}
                 totalServicos={totalServicos}
+                valoresIniciais={condicoesVoz}
               />
             </div>
           </>

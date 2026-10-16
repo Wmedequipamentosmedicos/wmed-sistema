@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { hasSupabaseAnonConfig } from "@/lib/supabase/config";
+import { getSupabaseAnonKey, getSupabaseUrl, hasSupabaseAnonConfig } from "@/lib/supabase/config";
 
 function createMissingClient() {
   const queryBuilder = {
@@ -33,10 +33,7 @@ export async function createClient() {
   }
 
   const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  return createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
       cookies: {
         getAll() {
           return cookieStore.getAll();

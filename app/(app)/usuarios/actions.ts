@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireAdmin, txt } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSupabaseServiceRoleKey } from "@/lib/supabase/config";
 import { PERFIS } from "@/lib/constants";
 
 export async function criarUsuario(formData: FormData) {
   await requireAdmin();
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) redirect("/usuarios?erro=config");
+  if (!getSupabaseServiceRoleKey()) redirect("/usuarios?erro=config");
 
   const nome = txt(formData, "nome");
   const email = txt(formData, "email")?.toLowerCase() ?? null;
@@ -40,7 +41,7 @@ export async function criarUsuario(formData: FormData) {
 
 export async function alternarAtivo(formData: FormData) {
   const eu = await requireAdmin();
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) redirect("/usuarios?erro=config");
+  if (!getSupabaseServiceRoleKey()) redirect("/usuarios?erro=config");
 
   const id = txt(formData, "id");
   const ativar = txt(formData, "ativar") === "1";

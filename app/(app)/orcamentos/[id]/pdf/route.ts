@@ -260,7 +260,9 @@ export async function GET(
     avista: "À vista", pix: "PIX", boleto: "Boleto", transferencia: "Transferência bancária",
     cartao: "Cartão", faturado: "Faturado", outro: "Outro",
   };
-  paragrafo(`Forma de pagamento: ${pagamento[orcamento.forma_pagamento] ?? orcamento.forma_pagamento}`, MARGEM, LARGURA - MARGEM * 2);
+  if (orcamento.forma_pagamento) {
+    paragrafo(`Forma de pagamento: ${pagamento[orcamento.forma_pagamento] ?? orcamento.forma_pagamento}`, MARGEM, LARGURA - MARGEM * 2);
+  }
   if (orcamento.prazo_entrega) paragrafo(`Prazo de entrega: ${orcamento.prazo_entrega}`, MARGEM, LARGURA - MARGEM * 2);
   if (orcamento.responsavel) paragrafo(`Responsável: ${orcamento.responsavel}`, MARGEM, LARGURA - MARGEM * 2);
   if (orcamento.informacoes_adicionais) {

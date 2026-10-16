@@ -29,7 +29,7 @@ export async function finalizarOrcamento(formData: FormData): Promise<never> {
   if (
     empresaId === null || empresaId <= 0 ||
     !["produtos", "servicos", "produtos-servicos"].includes(tipo ?? "") ||
-    !FORMAS_PAGAMENTO.includes(formaPagamento ?? "") ||
+    (formaPagamento !== null && !FORMAS_PAGAMENTO.includes(formaPagamento)) ||
     !Number.isFinite(descontoPercentual) || descontoPercentual < 0 || descontoPercentual > 100 ||
     !Number.isFinite(descontoValor) || descontoValor < 0 ||
     !Number.isFinite(frete) || frete < 0 ||
@@ -75,7 +75,7 @@ export async function finalizarOrcamento(formData: FormData): Promise<never> {
     p_criado_por: perfil.user.id,
     p_tipo: tipoOrcamento,
     p_itens: itens,
-    p_forma_pagamento: formaPagamento,
+    p_forma_pagamento: formaPagamento || null,
     p_desconto_percentual: descontoPercentual,
     p_desconto_valor: descontoValor,
     p_frete: frete,

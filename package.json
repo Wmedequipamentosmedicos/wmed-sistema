@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test lib/supabase/config.test.ts"
+    "test": "tsx --test lib/supabase/config.test.ts \"app/(app)/orcamentos/VoiceOrcamento.test.ts\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",

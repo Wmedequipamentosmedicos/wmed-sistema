@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { finalizarOrcamento } from "./actions";
 import type { TipoOrcamento } from "./types";
 
@@ -19,16 +19,48 @@ export default function OrcamentoCondicoes({
   itens,
   totalProdutos,
   totalServicos,
+  valoresIniciais,
 }: {
   empresaId: number;
   tipoOrcamento: TipoOrcamento;
   itens: Array<{ tipo: "produto" | "servico"; id: number; quantidade: number }>;
   totalProdutos: number;
   totalServicos: number;
+  valoresIniciais: {
+    formaPagamento: string;
+    descontoPercentual: string;
+    descontoValor: string;
+    prazoEntrega: string;
+    frete: string;
+    responsavel: string;
+    informacoesAdicionais: string;
+  };
 }) {
-  const [percentual, setPercentual] = useState("");
-  const [descontoFixo, setDescontoFixo] = useState("");
-  const [frete, setFrete] = useState("");
+  const [percentual, setPercentual] = useState(valoresIniciais.descontoPercentual);
+  const [descontoFixo, setDescontoFixo] = useState(valoresIniciais.descontoValor);
+  const [frete, setFrete] = useState(valoresIniciais.frete);
+  const [formaPagamento, setFormaPagamento] = useState(valoresIniciais.formaPagamento);
+  const [prazoEntrega, setPrazoEntrega] = useState(valoresIniciais.prazoEntrega);
+  const [responsavel, setResponsavel] = useState(valoresIniciais.responsavel);
+  const [informacoesAdicionais, setInformacoesAdicionais] = useState(valoresIniciais.informacoesAdicionais);
+
+  useEffect(() => {
+    setPercentual(valoresIniciais.descontoPercentual);
+    setDescontoFixo(valoresIniciais.descontoValor);
+    setFrete(valoresIniciais.frete);
+    setFormaPagamento(valoresIniciais.formaPagamento);
+    setPrazoEntrega(valoresIniciais.prazoEntrega);
+    setResponsavel(valoresIniciais.responsavel);
+    setInformacoesAdicionais(valoresIniciais.informacoesAdicionais);
+  }, [
+    valoresIniciais.descontoPercentual,
+    valoresIniciais.descontoValor,
+    valoresIniciais.frete,
+    valoresIniciais.formaPagamento,
+    valoresIniciais.prazoEntrega,
+    valoresIniciais.responsavel,
+    valoresIniciais.informacoesAdicionais,
+  ]);
 
   const subtotal = totalProdutos + totalServicos;
   const descontoPercentual = subtotal * Math.min(valorNumerico(percentual), 100) / 100;
@@ -46,9 +78,9 @@ export default function OrcamentoCondicoes({
 
       <div className="grid2">
         <label className="campo">
-          <span>Forma de Pagamento*</span>
-          <select name="forma_pagamento" defaultValue="" required>
-            <option value="" disabled>Selecione uma forma de pagamento</option>
+          <span>Forma de Pagamento</span>
+          <select name="forma_pagamento" value={formaPagamento} onChange={(event) => setFormaPagamento(event.target.value)}>
+            <option value="">Não informado</option>
             <option value="avista">À vista</option>
             <option value="pix">PIX</option>
             <option value="boleto">Boleto</option>
@@ -60,7 +92,7 @@ export default function OrcamentoCondicoes({
         </label>
         <label className="campo">
           <span>Prazo de Entrega</span>
-          <input name="prazo_entrega" placeholder="Ex.: 15 dias úteis" maxLength={100} />
+          <input name="prazo_entrega" placeholder="Ex.: 15 dias úteis" maxLength={100} value={prazoEntrega} onChange={(event) => setPrazoEntrega(event.target.value)} />
         </label>
         <label className="campo">
           <span>Desconto (%)</span>
@@ -98,11 +130,11 @@ export default function OrcamentoCondicoes({
         </label>
         <label className="campo">
           <span>Responsável pelo Orçamento</span>
-          <input name="responsavel" maxLength={200} />
+          <input name="responsavel" maxLength={200} value={responsavel} onChange={(event) => setResponsavel(event.target.value)} />
         </label>
         <label className="campo col-2">
           <span>Informações Adicionais</span>
-          <textarea name="informacoes_adicionais" maxLength={2000} />
+          <textarea name="informacoes_adicionais" maxLength={2000} value={informacoesAdicionais} onChange={(event) => setInformacoesAdicionais(event.target.value)} />
         </label>
       </div>
 

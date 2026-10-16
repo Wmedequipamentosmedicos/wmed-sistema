@@ -1,14 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/config";
 
 // Cliente com chave de administrador. Use SOMENTE no servidor (Server Actions).
 export function createAdminClient() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  const url = getSupabaseUrl();
+  const key = getSupabaseServiceRoleKey();
+
+  if (!url || !key) {
     throw new Error("Supabase admin configuration is missing. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
   }
 
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
+  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }

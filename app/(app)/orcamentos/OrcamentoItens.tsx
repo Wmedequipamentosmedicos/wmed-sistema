@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import SearchDialog from "@/components/SearchDialog";
 import {
   criarProdutoNoOrcamento,
@@ -25,6 +25,7 @@ export default function OrcamentoItens({
   tipo,
   produtos: produtosIniciais,
   servicos: servicosIniciais,
+  itensIniciais,
   erroProdutos,
   erroServicos,
   onContinue,
@@ -32,6 +33,7 @@ export default function OrcamentoItens({
   tipo: TipoOrcamento;
   produtos: ProdutoOrcamento[];
   servicos: ServicoOrcamento[];
+  itensIniciais: LinhaSalva[];
   erroProdutos?: string;
   erroServicos?: string;
   onContinue: (totalProdutos: number, totalServicos: number, itens: LinhaSalva[]) => void;
@@ -41,6 +43,16 @@ export default function OrcamentoItens({
   const [linhasProdutos, setLinhasProdutos] = useState<Linha[]>([novaLinha()]);
   const [linhasServicos, setLinhasServicos] = useState<Linha[]>([novaLinha()]);
   const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    if (!itensIniciais.length) return;
+    setLinhasProdutos(itensIniciais
+      .filter((item) => item.tipo === "produto")
+      .map((item) => ({ chave: crypto.randomUUID(), itemId: String(item.id), quantidade: String(item.quantidade) })));
+    setLinhasServicos(itensIniciais
+      .filter((item) => item.tipo === "servico")
+      .map((item) => ({ chave: crypto.randomUUID(), itemId: String(item.id), quantidade: String(item.quantidade) })));
+  }, [itensIniciais]);
 
   const incluiProdutos = tipo !== "servicos";
   const incluiServicos = tipo !== "produtos";
@@ -81,19 +93,6 @@ export default function OrcamentoItens({
   }
 
   function continuar() {
-    const produtoInvalido = incluiProdutos && !linhasProdutos.some((linha) => {
-      const quantidade = Number(linha.quantidade);
-      return linha.itemId && Number.isFinite(quantidade) && quantidade > 0;
-    });
-    const servicoInvalido = incluiServicos && !linhasServicos.some((linha) => {
-      const quantidade = Number(linha.quantidade);
-      return linha.itemId && Number.isFinite(quantidade) && quantidade > 0;
-    });
-    if (produtoInvalido || servicoInvalido) {
-      setErro("Selecione ao menos um item válido e informe uma quantidade maior que zero em cada categoria do orçamento.");
-      return;
-    }
-    setErro("");
     const itens: LinhaSalva[] = [
       ...(incluiProdutos ? linhasProdutos.flatMap((linha) => {
         const id = Number(linha.itemId);
@@ -110,6 +109,11 @@ export default function OrcamentoItens({
           : [];
       }) : []),
     ];
+    if (itens.length === 0) {
+      setErro("Selecione ao menos um produto ou serviço e informe uma quantidade maior que zero.");
+      return;
+    }
+    setErro("");
     onContinue(
       incluiProdutos ? total(linhasProdutos, produtos) : 0,
       incluiServicos ? total(linhasServicos, servicos) : 0,
